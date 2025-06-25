@@ -12,6 +12,34 @@
 
 ## Instalação <a name="installation"></a>
 
+### API
+1. Entre na pasta da API
+2. Crie e ative o ambiente virtual
+
+- Linux/macOS:
+
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+- Windows
+
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+3. Instale as dependências
+
+```
+pip install -r requirements.txt
+```
+
+4. Rode a API
+```
+uvicorn main:app --reload
+```
+
 
 ## Estrutura do Projeto <a name="structure"></a>
 
