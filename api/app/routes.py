@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from api.app.controllers import health_controller, book_controller, user_controller
+from app.controllers import health_controller, book_controller, user_controller
 
 router = APIRouter()
 router.include_router(user_controller.router, prefix="/users", tags=["Users"])
