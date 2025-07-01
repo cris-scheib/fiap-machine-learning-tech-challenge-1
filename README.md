@@ -24,6 +24,31 @@ A comprehensive project that includes both a web scraper for book data extractio
 - Python 3.7+
 - pip (Python package installer)
 
+### Setup 
+
+ 1. Clonar o projeto
+ 2. Criar/ativar o ambiente virtual
+
+Linux/macOS:
+
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+Windows
+
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+3. Instalar as dependências
+
+```
+pip install -r requirements.txt
+```
+
+
 ## Web Scraper <a name="web-scraper"></a>
 
 The web scraper extracts comprehensive book data from the Books to Scrape website.
@@ -34,13 +59,7 @@ The web scraper extracts comprehensive book data from the Books to Scrape websit
 ```bash
 cd scripts
 ```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Run the scraper:
+2. Run the scraper:
 ```bash
 python scrapper.py
 ```
@@ -79,32 +98,15 @@ You can modify the following in `scripts/scrapper.py`:
 
 ## API <a name="api"></a>
 
-### Setup
 
-1. Entre na pasta da API
-2. Crie e ative o ambiente virtual
+### Quick Start
 
-- Linux/macOS:
-
+1. Navigate to the API directory:
+```bash
+cd api
 ```
-python3 -m venv venv
-source venv/bin/activate
-```
-- Windows
-
-```
-python -m venv venv
-venv\Scripts\activate
-```
-
-3. Instale as dependências
-
-```
-pip install -r requirements.txt
-```
-
-4. Rode a API
-```
+2. Run the API:
+```bash
 uvicorn main:app --reload
 ```
 

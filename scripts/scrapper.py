@@ -93,12 +93,11 @@ class BooksToScrapeScraper:
                     category_links.append(full_url)
         
         logger.info(f"Found {len(category_links)} categories")
-        print(f'category_links: {category_links}')
-        return category_links
+
+        #Sending just the valid categories
+        return category_links[1:]
     
     def get_all_book_urls_from_category(self, category_url: str) -> List[str]:
-        print('--------------------------------')
-        print(f'category_url: {category_url}')
         """
         Get all book URLs from a category page, handling pagination.
         
@@ -111,76 +110,32 @@ class BooksToScrapeScraper:
         book_urls = []
         current_url = category_url
 
+        while current_url:
+            response_data = safe_request(current_url)
+            if not response_data:
+                logger.error(f"Failed to fetch category page: {current_url}")
+                break
 
-            
-        response_data = safe_request(current_url)
-        if not response_data:
-            logger.error(f"Failed to fetch category page: {current_url}")
-            
-        soup = BeautifulSoup(response_data['content'], 'html.parser')
-        
-        # Find book links
-        book_links = soup.find_all('h3')
-        for link in book_links:
-            parent_link = link.find_parent('a')
-            if parent_link:
-                href = parent_link.get('href')
-                if href:
-                    #full_url = urljoin(current_url, href)
-                    full_url = urljoin('https://books.toscrape.com/catalogue/', href)
-                    print(f'full_url: {full_url}')
-                    book_urls.append(full_url)
+            soup = BeautifulSoup(response_data['content'], 'html.parser')
 
-                    book_links = soup.find_all('h3')
-        for link in book_links:
-            print(f'book_links: {link}')
-            #parent_link = link.find_parent('a')
-            parent_link = link.find('a')
-            print(f'parent_link: {parent_link}')
-            if parent_link:
-                href = parent_link.get('href')
-                print(f'href: {href}')
-                if href:
-                    print(f'href: {href}')
-                    #full_url = urljoin(current_url, href)
-                    
-                    full_url = urljoin('https://books.toscrape.com/catalogue/', href)
-                    print(f'full_url: {full_url}')
-                    book_urls.append(full_url)
-                
-        logger.info(f"Found {len(book_urls)} books in category")
-        return book_urls  
-        
-        # while current_url:
-        #     logger.info(f"Fetching book URLs from: {current_url}")
-            
-        #     response_data = safe_request(current_url)
-        #     if not response_data:
-        #         logger.error(f"Failed to fetch category page: {current_url}")
-        #         break
-            
-        #     soup = BeautifulSoup(response_data['content'], 'html.parser')
-            
-            # Find book links
+            book_links = soup.find_all('h3')
+            for link in book_links:
+                parent_link = link.find('a')
+                if parent_link:
+                    href = parent_link.get('href')
+                    if href:
+                        full_url = urljoin(current_url, href)
+                        book_urls.append(full_url)
 
-            # Check for next page
-            # next_link = soup.find('li', class_='next')
-            # if next_link:
-            #     next_a = next_link.find('a')
-            #     if next_a:
-            #         next_href = next_a.get('href')
-                    
-            #         #current_url = urljoin(current_url, next_href)
-            #         current_url = urljoin('https://books.toscrape.com/catalogue/', next_href)
-            #         print(current_url)  
-            #     else:
-            #         current_url = None
-            # else:
-            #     current_url = None
-            
-            # # Be respectful with delays
-            # time.sleep(self.delay)
-        
+            # Check the pagination
+            next_button = soup.select_one('li.next > a')
+            if next_button:
+                next_href = next_button.get('href')
+                current_url = urljoin(current_url, next_href)
+            else:
+                break
+
+        return book_urls
 
     
     def extract_book_data(self, book_url: str) -> Optional[Dict[str, Any]]:
@@ -228,7 +183,7 @@ class BooksToScrapeScraper:
             if breadcrumb:
                 category_links = breadcrumb.find_all('a')
                 if len(category_links) >= 2:  # Skip home, get category
-                    category = clean_text(category_links[1].get_text())
+                    category = clean_text(category_links[2].get_text())
             
             # Extract image URL
             image_element = soup.find('div', class_='item active').find('img') if soup.find('div', class_='item active') else None
@@ -272,7 +227,8 @@ class BooksToScrapeScraper:
         if not category_urls:
             logger.error("No categories found")
             return all_books
-        print(f'category_urls: {category_urls}')
+        print([url.split('/')[6] for url in category_urls])
+
         # Scrape books from each category
         for category_url in category_urls:
             category_name = self.categories.get(category_url, "Unknown")
@@ -281,7 +237,7 @@ class BooksToScrapeScraper:
             book_urls = self.get_all_book_urls_from_category(category_url)
             
             for book_url in book_urls:
-                book_data = self.extract_book_data(book_url.replace('https://books.toscrape.com/', 'https://books.toscrape.com/catalogue/'))
+                book_data = self.extract_book_data(book_url)
                 if book_data:
                     all_books.append(book_data)
                 
