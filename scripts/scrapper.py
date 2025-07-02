@@ -25,6 +25,10 @@ from urllib.parse import urljoin, urlparse
 import pandas as pd
 from bs4 import BeautifulSoup
 import logging
+from sqlalchemy.orm import Session
+from database import Book, get_db
+logger = logging.getLogger(__name__)
+
 
 # Add the scripts directory to the path to import utils
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -287,7 +291,38 @@ class BooksToScrapeScraper:
         logger.info(f"- Rating distribution: {df['rating'].value_counts().to_dict()}")
         
         return filepath
-
+    
+    def save_to_db(self, books_data: List[Dict[str, Any]], db: Session) -> int:
+        """
+        Salva os dados dos livros no banco via SQLAlchemy.
+        
+        Args:
+            books_data (List[Dict[str, Any]]): lista de dicionários dos livros
+            db (Session): sessão do SQLAlchemy para o banco
+            
+        Returns:
+            int: número de registros inseridos
+        """
+        if not books_data:
+            logger.warning("No data to save")
+            return 0
+        
+        books_to_add = []
+        for book in books_data:
+            b = Book(
+                title=book.get("title", ""),
+                price=float(book.get("price", 0)),
+                category=book.get("category", ""),
+                rating=book.get("rating", ""),
+                availability=book.get("availability", "")
+            )
+            books_to_add.append(b)
+        
+        db.add_all(books_to_add)
+        db.commit()
+        
+        logger.info(f"Inserted {len(books_to_add)} records into the database.")
+        return len(books_to_add)
 
 def main():
     """
@@ -307,7 +342,8 @@ def main():
             sys.exit(1)
         
         # Save to CSV
-        output_file = scraper.save_to_csv(books_data)
+        db = next(get_db())
+        output_file = scraper.save_to_db(books_data, db)
         
         if output_file:
             logger.info("Scraping completed successfully!")

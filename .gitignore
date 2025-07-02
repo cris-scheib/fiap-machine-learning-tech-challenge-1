@@ -12,7 +12,6 @@
 # Arquivos de log e banco local
 **/*.log
 **/*.sqlite3
-**/*.db
 
 # Configurações de IDEs e editores
 **/.vscode/
