@@ -3,9 +3,9 @@ from pydantic import BaseModel
 class BookSchema(BaseModel):
     id: int
     title: str
-    price: str
+    price: float
     availability: str
-    rating: str
+    rating: int
     category: str
 
     class Config:

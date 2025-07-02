@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Float
 from app.core.database import Base
 
 class Book(Base):
@@ -6,7 +6,7 @@ class Book(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
-    price = Column(String)
+    price = Column(Float)
     availability = Column(String)
-    rating = Column(String)
+    rating = Column(Integer)
     category = Column(String)
