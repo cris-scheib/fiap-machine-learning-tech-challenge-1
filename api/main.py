@@ -1,5 +1,3 @@
-from http.client import HTTPException
-
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
