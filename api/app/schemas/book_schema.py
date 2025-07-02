@@ -5,7 +5,7 @@ class BookSchema(BaseModel):
     title: str
     price: float
     availability: str
-    rating: int
+    rating: str
     category: str
 
     class Config:

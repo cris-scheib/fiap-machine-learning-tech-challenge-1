@@ -8,5 +8,5 @@ class Book(Base):
     title = Column(String)
     price = Column(Float)
     availability = Column(String)
-    rating = Column(Integer)
+    rating = Column(String)
     category = Column(String)
