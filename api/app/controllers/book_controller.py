@@ -15,10 +15,5 @@ def list_books(db: Session = Depends(get_db)):
 
 @router.get("/search", response_model=List[BookSchema])
 def list_books_by_title_and_category(title: str, category: str, db: Session = Depends(get_db)):
-    try:
-        books = books_service.get_books_by_title_and_category(db, title, category)
-        if not books:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
-        return books
-    except SQLAlchemyError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return books_service.get_books_by_title_and_category(db, title, category)
+

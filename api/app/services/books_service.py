@@ -31,7 +31,12 @@ def get_books_by_title_and_category(db: Session, title: str = None, category: st
         if category:
             query = query.filter(Book.category == category)
 
-        return query.all()
+        books = query.all()
+        if not books:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Nenhum livro encontrado na base de dados."
+            )
 
     except SQLAlchemyError as e:
         raise HTTPException(
