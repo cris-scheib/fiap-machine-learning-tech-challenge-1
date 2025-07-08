@@ -27,9 +27,9 @@ def get_books_by_title_and_category(db: Session, title: str = None, category: st
         query = db.query(Book)
         
         if title:
-            query = query.filter(Book.title == title)
+            query = query.filter(Book.title.ilike(f"%{title}%")) 
         if category:
-            query = query.filter(Book.category == category)
+            query = query.filter(Book.category.ilike(f"%{category}%"))
 
         books = query.all()
         if not books:
@@ -37,6 +37,8 @@ def get_books_by_title_and_category(db: Session, title: str = None, category: st
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Nenhum livro encontrado na base de dados."
             )
+        
+        return books
 
     except SQLAlchemyError as e:
         raise HTTPException(
