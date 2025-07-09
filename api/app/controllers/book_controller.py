@@ -13,11 +13,13 @@ router = APIRouter(
 
 @router.get("/", response_model=List[BookSchema])
 def list_books(
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db)
 ): return books_service.get_all_books(db)
 
 @router.get("/search", response_model=List[BookSchema])
-def list_books_by_title_and_category(title: str, category: Optional[str] = None, db: Session = Depends(get_db)):
-    books = books_service.get_books_by_title_and_category(db, title, category)
-    return books
+def list_books_by_title_and_category(
+        title: Optional[str] = None,
+        category: Optional[str] = None,
+        db: Session = Depends(get_db)
+):  return books_service.get_books_by_title_and_category(db, title, category)
 
