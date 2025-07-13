@@ -10,6 +10,7 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)]
 )
 
-@router.get("/", response_model=List[CategorySchema])
-def list_categories(db: Session = Depends(get_db)):
-    return get_all_categories(db)
+@router.get("/", response_model=List[str])
+async def list_categories(db: Session = Depends(get_db)):
+    categories = get_all_categories(db)
+    return [category.category for category in categories]
