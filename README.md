@@ -12,13 +12,13 @@ A comprehensive project that includes both a web scraper for book data extractio
 
 -----------------------------------
 
-1. [Instalação](#installation)
+1. [Installation](#installation)
 2. [Web Scraper](#web-scraper)
 3. [API](#api)
-4. [Estrutura do Projeto](#structure)
-5. [Licenciamento, Autores e Agradecimentos](#licensing)
+4. [Project Structure](#structure)
+5. [Licensing, Authors and Acknowledgments](#licensing)
 
-## Instalação <a name="installation"></a>
+## Installation <a name="installation"></a>
 
 ### Prerequisites
 - Python 3.7+
@@ -26,8 +26,8 @@ A comprehensive project that includes both a web scraper for book data extractio
 
 ### Setup 
 
- 1. Clonar o projeto
- 2. Criar/ativar o ambiente virtual
+ 1. Clone the project
+ 2. Create/activate the virtual environment
 
 Linux/macOS:
 
@@ -42,7 +42,7 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
-3. Instalar as dependências
+3. Install dependencies
 
 ```
 pip install -r requirements.txt
@@ -98,19 +98,80 @@ You can modify the following in `scripts/scrapper.py`:
 
 ## API <a name="api"></a>
 
-
 ### Quick Start
 
-1. Navigate to the API directory:
+1. Create and activate a Python virtual environment:
+```bash
+python3 -m venv venv
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate  # Windows
+```
+
+2. Install dependencies:
+```bash
+# Option 1: Using pip directly
+pip install -r requirements.txt
+
+# Option 2: Using the installation script
+python install_dependencies.py
+```
+
+> **Note**: If you encounter import errors, make sure to run the installation script to properly install all dependencies.
+
+3. Run the script to start the server:
+```bash
+# Option 1: Standard startup
+python start_server.py
+
+# Option 2: Startup with dependency checks (recommended if you have import errors)
+python start_server_with_checks.py
+```
+
+4. Or navigate to the API directory and run:
 ```bash
 cd api
-```
-2. Run the API:
-```bash
 uvicorn main:app --reload
 ```
 
-## Estrutura do Projeto <a name="structure"></a>
+### Available Endpoints
+
+- `GET /api/v1/books`: List all books
+- `GET /api/v1/books/search?title=&category=`: Search books by title and category
+- `GET /api/v1/books/{id}`: Get a book by ID
+
+### Endpoint GET /api/v1/books/{id}
+
+This endpoint returns the details of a specific book by its ID.
+
+**Example Response (Book found):**
+```json
+{
+  "id": 1,
+  "title": "A Light in the Attic",
+  "price": 51.77,
+  "availability": "In stock",
+  "rating": "Three",
+  "category": "Poetry"
+}
+```
+
+**Example Response (Book not found):**
+```json
+{
+  "detail": "Error Book not found."
+}
+```
+
+### Compatibility Issues
+
+If you encounter compatibility issues when running the API, try:
+
+1. Using Python 3.9 or 3.10 instead of newer versions
+2. Running the `simulate_endpoint.py` script to test functionality without starting the server
+3. Checking if the dependency versions in `requirements.txt` are compatible with your Python version
+
+## Project Structure <a name="structure"></a>
 
 ```
 fiap-machine-learning-tech-challenge-1/
@@ -137,4 +198,31 @@ fiap-machine-learning-tech-challenge-1/
 
 ![image]()
 
-## Licenciamento, Autores e Agradecimentos<a name="licensing"></a>
+## Troubleshooting
+
+### Import Errors
+
+If you encounter import errors like `Unable to import 'fastapi'` or `Unable to import 'sqlalchemy'`, follow these steps:
+
+1. Make sure you have activated your virtual environment
+2. Run the environment check script to diagnose and fix issues:
+   ```bash
+   python check_environment.py
+   ```
+   This script will check your Python version, installed dependencies, and project structure, and offer to install any missing dependencies.
+
+3. Alternatively, run the installation script to install all dependencies:
+   ```bash
+   python install_dependencies.py
+   ```
+
+4. If the issue persists, try installing the dependencies manually:
+   ```bash
+   pip install fastapi==0.95.2 uvicorn==0.22.0 pydantic==1.10.8 sqlalchemy==1.4.48 beautifulsoup4==4.12.2 requests==2.31.0
+   ```
+
+## Compatibility Issues
+
+This project was developed and tested with Python 3.8+. Some compatibility issues may occur with older versions.
+
+## Licensing, Authors and Acknowledgments<a name="licensing"></a>
