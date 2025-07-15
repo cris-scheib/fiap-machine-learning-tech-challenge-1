@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, Path, Query, status
-from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
 from app.core.database import get_db
@@ -8,11 +7,8 @@ from app.services.books_service import get_all_books, get_books_by_title_and_cat
 from app.core.auth import get_current_user
 import logging
 
-# Logging configuration
+
 logger = logging.getLogger(__name__)
-
-
-
 router = APIRouter(
     dependencies=[Depends(get_current_user)]
 )
