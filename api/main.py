@@ -1,5 +1,13 @@
 import logging
+import sys
 import os
+from pathlib import Path
+
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[0] 
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
+
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +30,7 @@ logger.info("Initializing database...")
 Base.metadata.create_all(bind=engine)
 logger.info("Database initialized successfully")
 
+               
 app = FastAPI(
     title="Books API",
     description="API for book management",
