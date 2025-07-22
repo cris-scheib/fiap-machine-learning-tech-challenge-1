@@ -57,11 +57,11 @@ The web scraper extracts comprehensive book data from the Books to Scrape websit
 
 1. Navigate to the scripts directory:
 ```bash
-cd scripts
+cd api
 ```
 2. Run the scraper:
 ```bash
-python scrapper.py
+python -m app.services.scrapper.scrapper_service
 ```
 
 ### Features
@@ -71,13 +71,6 @@ python scrapper.py
 - **Respectful Scraping**: Configurable delays and rate limiting
 - **Pagination Support**: Automatically handles multi-page categories
 - **Data Quality**: Text cleaning and normalization
-
-### Demo Mode
-
-To test the scraper with just a few books:
-```bash
-python demo_scrapper.py
-```
 
 ### Output
 
