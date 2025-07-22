@@ -6,9 +6,12 @@ from sqlalchemy.engine import Engine
 from sqlalchemy import event
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-db_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../data/data.db"))
+db_path = os.path.join(os.path.dirname(__file__), "data", "data.db")
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{db_path}"
+logger.info(f"Using database at: {db_path}")
+logger.info(f"File exists: {os.path.exists(db_path)}")
 
 db_dir = os.path.dirname(db_path)
 if not os.path.exists(db_dir):
@@ -22,12 +25,17 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
+    SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False},
-    echo=False  # Set to True to see SQL queries in the log
+    echo=False
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+# imports the models to create the tables
+from app.models.book_model import Book
+from app.models.user_model import User
+Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()
