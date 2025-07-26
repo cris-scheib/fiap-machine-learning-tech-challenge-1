@@ -1,13 +1,13 @@
 # FastAPI app dependencies
-fastapi==0.90.0
-uvicorn==0.20.0
-pydantic==1.10.0
+fastapi==0.95.1
+pydantic==1.10.11
+uvicorn==0.22.0
 python-jose==3.3.0
-sqlalchemy>=2.0.16
+sqlalchemy==2.0.20
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 
 # Scraper dependencies (para Python 3.10+)
 pandas==2.3.0
 beautifulsoup4==4.13.4
-requests==2.31.0
+requests==2.31.
