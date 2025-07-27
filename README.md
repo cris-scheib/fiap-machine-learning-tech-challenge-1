@@ -1,6 +1,10 @@
-# FIAP Machine Learning Engineering - Tech Challenge 1
+# API de Livros - FIAP Machine Learning Tech Challenge 1
 
-A comprehensive project that includes both a web scraper for book data extraction and a REST API for data management.
+Projeto de extração e API pública para consulta de livros, integrando web scraping e FastAPI.
+
+| ![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg) ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?logo=fastapi) ![MIT License](https://img.shields.io/badge/license-MIT-yellow.svg) |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+
 
 ## Features
 
@@ -12,15 +16,77 @@ A comprehensive project that includes both a web scraper for book data extractio
 
 -----------------------------------
 
-1. [Installation](#installation)
-2. [Web Scraper](#web-scraper)
-3. [API](#api)
-4. [Project Structure](#structure)
-5. [Licensing, Authors and Acknowledgments](#licensing)
+## Sumário
 
-## Installation <a name="installation"></a>
+- [Descrição](#descrição)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Arquitetura](#arquitetura)
+- [Instalação](#instalação)
+- [Endpoints](#endpoints)
+- [Licença, Autores e Agradecimentos](#licença-autores)
 
-### Prerequisites
+## Descrição
+
+O objetivo deste projeto é expor uma **API RESTful** para facilitar o acesso aos dados de diversos livros. Esses dados originalmente são extraídos via **web scraping** do site [Books to Scrape](https://books.toscrape.com/) 
+
+Os dados disponíveis envolvem informações sobre:
+
+- Id
+- Título
+- Preço
+- Disponibilidade
+- Classificação
+- Categoria
+
+## Tecnologias Utilizadas
+
+- **Python 3.11**
+- **FastAPI**
+- **Uvicorn**
+- **BeautifulSoup4**
+- **SQLite**
+
+## Arquitetura
+
+O projeto segue uma arquitetura em camadas, inspirada no Clean Architecture,
+separando responsabilidades em diferentes módulos e 
+facilitando manutenção e testes.
+
+### 📂 Estrutura do Repositório
+
+```
+fiap-machine-learning-tech-challenge-1/
+├── api/                         # Aplicação FastAPI
+│   ├── main.py                  # Entrypoint (uvicorn app.main:app)
+│   ├── requirements.txt         # Dependências da API
+│   └── app/                     # Código-fonte da API
+│       ├── controllers/         # Implementação dos endpoints (routes)
+│       ├── core/                # Configurações de autenticação e sessão de BD
+│       ├── models/              # Modelos SQLAlchemy
+│       ├── schemas/             # Schemas Pydantic (request/response)
+│       └── services/            # Lógica de negócio e componente de scraping
+├── requirements.txt             # Dependências gerais do projeto
+├── runtime.txt                  # Versão do runtime (deploy)
+└── vercel.json                  # Configurações de deploy
+```
+
+### Descrição das camadas:
+
+controllers/: Define os pontos de entrada da API (endpoints) e realiza roteamento.
+
+services/: Implementa a lógica de negócio, orquestrando operações de scraping e acesso a dados via models.
+
+models/: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
+
+schemas/: Contém os Pydantic models para validação e serialização de requisições e respostas.
+
+core/: Agrupa configurações centrais, como autenticação JWT, inicialização de sessão de banco de dados e configurações gerais.
+
+Essa separação melhora a modularidade, favorece testes unitários e permite evoluir cada camada independentemente.
+
+## Instalação
+
+### Pre-requisitos
 - Python 3.7+
 - pip (Python package installer)
 
@@ -63,6 +129,97 @@ cd api
 ```bash
 python -m app.services.scrapper.scrapper_service
 ```
+
+## Endpoints
+
+### Autenticação (opcional)
+
+#### `POST /api/v1/auth/login`
+- **Descrição:** Gera um token JWT para acesso a rotas protegidas.
+- **Body Request:**
+  ```json
+  { "username": "seu_usuario", "password": "sua_senha" }
+  ```
+- **Resposta (200):**
+  ```json
+  { "access_token": "<seu_token>", "token_type": "bearer" }
+  ```
+
+Inclua no header das requisições protegidas:
+```
+Authorization: Bearer <seu_token>
+```
+
+---
+
+### `GET /api/v1/health`
+- **Descrição:** Verifica se a API está no ar.
+- **Resposta (200):**
+  ```json
+  { "status": "ok" }
+  ```
+
+---
+
+### `GET /api/v1/books`
+- **Descrição:** Lista todos os livros carregados.
+- **Query Params (opcionais):**
+  - `limit` (int): número máximo de itens por página.
+  - `offset` (int): índice de início para paginação.
+- **Resposta (200):**
+  ```json
+  [
+    { "id": 1, "title": "A Light in the Attic", "price": 51.77, "category": "Travel", "availability": "In stock", "rating": 3 },
+    ...
+  ]
+  ```
+
+---
+
+### `GET /api/v1/books/{id}`
+- **Descrição:** Obtém detalhes completos de um livro pelo seu ID.
+- **Path Param:**
+  - `id` (int)
+- **Resposta (200):**
+  ```json
+  { "id": 1, "title": "A Light in the Attic", "price": 51.77, "category": "Travel", "availability": "In stock", "rating": 3, "description": "Descrição detalhada..." }
+  ```
+- **Resposta (404):**
+  ```json
+  { "detail": "Book not found" }
+  ```
+
+---
+
+### `GET /api/v1/books/search`
+- **Descrição:** Busca livros por título parcial e/ou categoria.
+- **Query Params:**
+  - `title` (string, opcional)
+  - `category` (string, opcional)
+- **Resposta (200):** Lista de livros que atendem aos filtros.
+
+---
+
+### `GET /api/v1/categories`
+- **Descrição:** Retorna todas as categorias existentes.
+- **Resposta (200):**
+  ```json
+  ["Travel", "Mystery", "Historical Fiction", ...]
+  ```
+
+## Licença, Autores
+
+### 🧑‍💻 Desenvolvido por
+
+- `Beatriz Rosa Carneiro Gomes - RM`
+- `Cristine Scheibler - RM`
+- `Guilherme Fernandes Dellatin - RM365508`
+- `Iana Alexandre Neri - RM360484`
+- `João Lucas Oliveira Hilario - RM`
+
+Este projeto é apenas para fins educacionais e segue a licença MIT.
+
+
 
 ### Features
 
