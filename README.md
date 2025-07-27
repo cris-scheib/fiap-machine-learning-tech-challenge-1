@@ -220,7 +220,7 @@ Authorization: Bearer <seu_token>
 Este projeto é apenas para fins educacionais e segue a licença MIT.
 
 
-
+---------------- Lembrete para remover abaixo ----------------
 ### Features
 
 - **Complete Data Extraction**: Title, price, rating, availability, category, image URL
