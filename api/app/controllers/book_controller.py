@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Path, Query, status
 from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from app.core.database import get_db
 from app.schemas.book_schema import BookSchema
 from app.services.books_service import get_all_books, get_books_by_title_and_category, get_book_by_id
@@ -38,7 +38,7 @@ async def list_books(db: Session = Depends(get_db)) -> List[BookSchema]:
              500: {"description": "Internal server error"}
          })
 async def list_books_by_title_and_category(
-    title: str = Query(..., description="Title or part of the book title", min_length=1),
+    title: Optional[str] = Query(..., description="Title or part of the book title", min_length=1),
     category: Optional[str] = Query(None, description="Book category (optional)"),
     db: Session = Depends(get_db)
 ) -> List[BookSchema]:
