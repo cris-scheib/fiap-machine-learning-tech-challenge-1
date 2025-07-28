@@ -5,15 +5,6 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 | ![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg) ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?logo=fastapi) ![MIT License](https://img.shields.io/badge/license-MIT-yellow.svg) |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 
-
-## Features
-
-- **Web Scraper**: Extracts book data from [Books to Scrape](https://books.toscrape.com/)
-- **REST API**: Provides endpoints for user management and data access
-- **Data Processing**: CSV export with comprehensive book information
-
-![image]()
-
 -----------------------------------
 
 ## Sumário
@@ -24,6 +15,8 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 - [Instalação](#instalação)
 - [Endpoints](#endpoints)
 - [Licença, Autores e Agradecimentos](#licença-autores)
+
+-----------------------------------
 
 ## Descrição
 
@@ -38,6 +31,8 @@ Os dados disponíveis envolvem informações sobre:
 - Classificação
 - Categoria
 
+-----------------------------------
+
 ## Tecnologias Utilizadas
 
 - **Python 3.11**
@@ -45,6 +40,8 @@ Os dados disponíveis envolvem informações sobre:
 - **Uvicorn**
 - **BeautifulSoup4**
 - **SQLite**
+
+-----------------------------------
 
 ## Arquitetura
 
@@ -72,63 +69,61 @@ fiap-machine-learning-tech-challenge-1/
 
 ### Descrição das camadas:
 
-controllers/: Define os pontos de entrada da API (endpoints) e realiza roteamento.
+**controllers**: Define os pontos de entrada da API (endpoints) e realiza roteamento.
 
-services/: Implementa a lógica de negócio, orquestrando operações de scraping e acesso a dados via models.
+**services**: Implementa a lógica de negócio, orquestrando operações de scraping e acesso a dados via models.
 
-models/: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
+**models**: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
 
-schemas/: Contém os Pydantic models para validação e serialização de requisições e respostas.
+**schemas**: Contém os Pydantic models para validação e serialização de requisições e respostas.
 
-core/: Agrupa configurações centrais, como autenticação JWT, inicialização de sessão de banco de dados e configurações gerais.
+**core**: Agrupa configurações centrais, como autenticação JWT, inicialização de sessão de banco de dados e configurações gerais.
 
 Essa separação melhora a modularidade, favorece testes unitários e permite evoluir cada camada independentemente.
 
+-----------------------------------
+
 ## Instalação
 
-### Pre-requisitos
-- Python 3.7+
-- pip (Python package installer)
+### Pré-requisitos
 
-### Setup 
+- Git
+- Python 3.11+
 
- 1. Clone the project
- 2. Create/activate the virtual environment
+### Passos
 
-Linux/macOS:
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/cris-scheib/fiap-machine-learning-tech-challenge-1.git
+   cd fiap-machine-learning-tech-challenge-1
+   ```
+2. **Crie e ative um ambiente virtual**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Linux/macOS
+   venv\Scripts\activate    # Windows
+   ```
+3. **Instale dependências gerais**
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Gere o CSV de livros (scraping)**
+   ```bash
+   cd api
+   python -m app.services.scrapper.scrapper_service
+   cd ..
+   ```
+5. **Inicie a API**
+   ```bash
+   cd api
+   uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
 
-```
-python3 -m venv venv
-source venv/bin/activate
-```
-Windows
+A API estará disponível em `http://127.0.0.1:8000`. 
+A documentação interativa é acessível em `http://127.0.0.1:8000/docs` (Swagger UI) 
+e `http://127.0.0.1:8000/redoc` (ReDoc).
 
-```
-python -m venv venv
-venv\Scripts\activate
-```
-
-3. Install dependencies
-
-```
-pip install -r requirements.txt
-```
-
-
-## Web Scraper <a name="web-scraper"></a>
-
-The web scraper extracts comprehensive book data from the Books to Scrape website.
-
-### Quick Start
-
-1. Navigate to the scripts directory:
-```bash
-cd api
-```
-2. Run the scraper:
-```bash
-python -m app.services.scrapper.scrapper_service
-```
+https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api/docs
 
 ## Endpoints
 
@@ -212,10 +207,10 @@ Authorization: Bearer <seu_token>
 ### 🧑‍💻 Desenvolvido por
 
 - `Beatriz Rosa Carneiro Gomes - RM`
-- `Cristine Scheibler - RM`
+- `Cristine Scheibler - RM365433`
 - `Guilherme Fernandes Dellatin - RM365508`
 - `Iana Alexandre Neri - RM360484`
-- `João Lucas Oliveira Hilario - RM`
+- `João Lucas Oliveira Hilario - RM366185`
 
 Este projeto é apenas para fins educacionais e segue a licença MIT.
 
