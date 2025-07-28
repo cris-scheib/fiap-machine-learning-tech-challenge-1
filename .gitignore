@@ -42,3 +42,4 @@
 **/*.spec
 **/dist/
 **/build/
+.vercel

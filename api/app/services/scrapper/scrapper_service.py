@@ -26,13 +26,15 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import logging
 from sqlalchemy.orm import Session
-from database import Book, get_db
+from ...core.database import get_db
+from ...models.book_model import Book
+
 logger = logging.getLogger(__name__)
 
 
 # Add the scripts directory to the path to import utils
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from utils import (
+from app.services.scrapper.scrapper_utils import (
     clean_text, extract_price, extract_rating, check_availability,
     safe_request, validate_url, create_filename, logger
 )
@@ -99,7 +101,7 @@ class BooksToScrapeScraper:
         logger.info(f"Found {len(category_links)} categories")
 
         #Sending just the valid categories
-        return category_links[1:]
+        return category_links[1:2]
     
     def get_all_book_urls_from_category(self, category_url: str) -> List[str]:
         """

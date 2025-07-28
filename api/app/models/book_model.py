@@ -1,8 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String
 from app.core.database import Base
 import logging
 
-# Logging configuration
 logger = logging.getLogger(__name__)
 
 class Book(Base):
