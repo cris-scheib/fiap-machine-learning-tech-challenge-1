@@ -107,7 +107,7 @@ Essa separação melhora a modularidade, favorece testes unitários e permite ev
    ```bash
    pip install -r requirements.txt
    ```
-4. **Gere o CSV de livros (scraping)**
+4. **Execute o Scraping**
    ```bash
    cd api
    python -m app.services.scrapper.scrapper_service
