@@ -32,9 +32,6 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# imports the models to create the tables
-from app.models.book_model import Book
-from app.models.user_model import User
 Base.metadata.create_all(bind=engine)
 
 def get_db():
