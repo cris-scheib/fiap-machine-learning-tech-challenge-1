@@ -9,8 +9,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix="/api/v1/stats",
-    tags=["Stats"],
     dependencies=[Depends(get_current_user)]
 )
 
