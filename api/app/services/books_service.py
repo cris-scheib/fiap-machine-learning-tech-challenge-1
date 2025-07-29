@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func, cast, Float
 from app.models.book_model import Book
 from fastapi import HTTPException, status
 from typing import List, Optional
@@ -61,3 +62,38 @@ def get_book_by_id(db: Session, book_id: int) -> Optional[Book]:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error accessing the database: {str(e)}"
         )
+
+def get_top_rated_books(db: Session, limit: int = 10) -> List[Book]:
+    try:
+        # Aqui considerando que rating é string tipo "One", "Two", ... e convertendo para número
+        rating_map = {
+            "One": 1,
+            "Two": 2,
+            "Three": 3,
+            "Four": 4,
+            "Five": 5
+        }
+
+        # Use uma subquery para ordenar pelo rating numérico
+        books = db.query(Book).all()
+        # Ordena no Python porque no banco rating é texto
+        books_sorted = sorted(
+            books,
+            key=lambda b: rating_map.get(b.rating, 0),
+            reverse=True
+        )
+        return books_sorted[:limit]
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error fetching top-rated books: {str(e)}")
+
+def get_books_by_price_range(db: Session, min_price: float, max_price: float) -> List[Book]:
+    try:
+        books = db.query(Book).filter(
+            cast(Book.price, Float) >= min_price,
+            cast(Book.price, Float) <= max_price
+        ).all()
+        if not books:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No books found in the specified price range.")
+        return books
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error fetching books by price range: {str(e)}")
