@@ -38,7 +38,7 @@ async def list_books(db: Session = Depends(get_db)) -> List[BookSchema]:
              500: {"description": "Internal server error"}
          })
 async def list_books_by_title_and_category(
-    title: Optional[str] = Query(..., description="Title or part of the book title", min_length=1),
+    title: Optional[str] = Query(None, description="Title or part of the book title", min_length=1),
     category: Optional[str] = Query(None, description="Book category (optional)"),
     db: Session = Depends(get_db)
 ) -> List[BookSchema]:
