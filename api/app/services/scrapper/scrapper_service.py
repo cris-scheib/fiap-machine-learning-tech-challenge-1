@@ -178,7 +178,7 @@ class BooksToScrapeScraper:
         logger.info(f"Scraping completed. Total books extracted: {len(all_books)}")
         return all_books
 
-    def save_to_csv(self, books_data: List[Dict[str, Any]], output_dir: str = "../data") -> str:
+    def save_to_csv(self, books_data: List[Dict[str, Any]], output_dir: str = "../api/app/core/data") -> str:
         if not books_data:
             logger.warning("No data to save")
             return ""
@@ -238,12 +238,20 @@ def main():
 
         db = next(get_db())
         output_file = scraper.save_to_db(books_data, db)
+        output_file_csv = scraper.save_to_csv(books_data)
 
         if output_file:
             logger.info("Scraping completed successfully!")
             logger.info(f"Data saved to: {output_file}")
         else:
             logger.error("Failed to save data")
+            sys.exit(1)
+
+        if output_file_csv:
+            logger.info("Scraping completed successfully!")
+            logger.info(f"Data saved to: {output_file_csv}")
+        else:
+            logger.error("Failed to save data in csv file")
             sys.exit(1)
 
     except KeyboardInterrupt:
