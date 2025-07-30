@@ -206,7 +206,7 @@ Authorization: Bearer <seu_token>
 
 ### 🧑‍💻 Desenvolvido por
 
-- `Beatriz Rosa Carneiro Gomes - RM`
+- `Beatriz Rosa Carneiro Gomes - RM365967`
 - `Cristine Scheibler - RM365433`
 - `Guilherme Fernandes Dellatin - RM365508`
 - `Iana Alexandre Neri - RM360484`
