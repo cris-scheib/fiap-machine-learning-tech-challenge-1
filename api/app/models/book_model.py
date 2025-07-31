@@ -15,9 +15,7 @@ class Book(Base):
     category = Column(String, nullable=False, index=True)
     
     def __repr__(self):
-        """String representation of the Book object."""
         return f"<Book(id={self.id}, title='{self.title}', category='{self.category}')>"
         
     def __str__(self):
-        """Friendly string representation of the Book object."""
         return f"Book: {self.title} (ID: {self.id})"
