@@ -9,9 +9,9 @@ import logging
 from sqlalchemy.orm import Session
 from ...core.database import get_db
 from ...models.book_model import Book
-from app.services.scrapper.scrapper_utils import (
+from ...services.scrapper.scrapper_utils import (
     clean_text, extract_price, extract_rating, check_availability,
-    safe_request, validate_url, create_filename, logger
+    safe_request, validate_url, create_filename
 )
 
 logger = logging.getLogger(__name__)
@@ -60,7 +60,8 @@ class BooksToScrapeScraper:
         logger.info(f"Found {len(category_links)} categories")
         return category_links[1:]
 
-    def get_all_book_urls_from_category(self, category_url: str) -> List[str]:
+    @staticmethod
+    def get_all_book_urls_from_category(category_url: str) -> List[str]:
 
         book_urls = []
         current_url = category_url
@@ -91,7 +92,8 @@ class BooksToScrapeScraper:
 
         return book_urls
 
-    def extract_book_data(self, book_url: str) -> Optional[Dict[str, Any]]:
+    @staticmethod
+    def extract_book_data(book_url: str) -> Optional[Dict[str, Any]]:
 
         logger.info(f"Extracting data from: {book_url}")
         print(f'book_url: {book_url}')
@@ -111,7 +113,7 @@ class BooksToScrapeScraper:
             price = extract_price(price_text)
 
             rating_element = soup.find('p', class_='star-rating')
-            rating_class = ' '.join(rating_element.get('class', [])) if rating_element else ""
+            rating_class = ' '.join(rating_element.get('class', None)) if rating_element else ""
             rating = extract_rating(rating_class)
 
             availability_element = soup.find('p', class_='instock availability')
@@ -178,7 +180,8 @@ class BooksToScrapeScraper:
         logger.info(f"Scraping completed. Total books extracted: {len(all_books)}")
         return all_books
 
-    def save_to_csv(self, books_data: List[Dict[str, Any]], output_dir: str = "../data") -> str:
+    @staticmethod
+    def save_to_csv(books_data: List[Dict[str, Any]], output_dir: str = "../api/app/core/data") -> str:
         if not books_data:
             logger.warning("No data to save")
             return ""
@@ -203,7 +206,8 @@ class BooksToScrapeScraper:
 
         return filepath
 
-    def save_to_db(self, books_data: List[Dict[str, Any]], db: Session) -> int:
+    @staticmethod
+    def save_to_db(books_data: List[Dict[str, Any]], db: Session) -> int:
         if not books_data:
             logger.warning("No data to save")
             return 0
@@ -226,7 +230,7 @@ class BooksToScrapeScraper:
         return len(books_to_add)
 
 
-def main():
+def run_scraping():
     try:
         logger.info("Starting Books to Scrape scraper...")
         scraper = BooksToScrapeScraper()
@@ -238,6 +242,7 @@ def main():
 
         db = next(get_db())
         output_file = scraper.save_to_db(books_data, db)
+        output_file_csv = scraper.save_to_csv(books_data)
 
         if output_file:
             logger.info("Scraping completed successfully!")
@@ -246,13 +251,20 @@ def main():
             logger.error("Failed to save data")
             sys.exit(1)
 
+        if output_file_csv:
+            logger.info("Scraping completed successfully!")
+            logger.info(f"Data saved to: {output_file_csv}")
+        else:
+            logger.error("Failed to save data in csv file")
+            sys.exit(1)
+
     except KeyboardInterrupt:
-        logger.info("Scraping interrupted by user")
+        logger.warning("Scraping interrupted by user")
         sys.exit(0)
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.exception(f"An error occurred: {e}")
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main()
+    run_scraping()

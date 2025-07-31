@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func, cast, Float
+from sqlalchemy import cast, Float
 from app.models.book_model import Book
 from fastapi import HTTPException, status
 from typing import List, Optional
@@ -50,7 +50,7 @@ def get_books_by_title_and_category(db: Session, title: str = None, category: st
 
 def get_book_by_id(db: Session, book_id: int) -> Optional[Book]:
     try:
-        book = db.query(Book).filter(Book.id == book_id).first()
+        book = db.query(Book).filter(book_id == Book.id).first()
         
         if not book:
             raise BookNotFoundException(book_id)
@@ -65,7 +65,6 @@ def get_book_by_id(db: Session, book_id: int) -> Optional[Book]:
 
 def get_top_rated_books(db: Session, limit: int = 10) -> List[Book]:
     try:
-        # Aqui considerando que rating é string tipo "One", "Two", ... e convertendo para número
         rating_map = {
             "One": 1,
             "Two": 2,
@@ -74,9 +73,7 @@ def get_top_rated_books(db: Session, limit: int = 10) -> List[Book]:
             "Five": 5
         }
 
-        # Use uma subquery para ordenar pelo rating numérico
         books = db.query(Book).all()
-        # Ordena no Python porque no banco rating é texto
         books_sorted = sorted(
             books,
             key=lambda b: rating_map.get(b.rating, 0),
