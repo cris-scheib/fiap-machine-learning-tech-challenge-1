@@ -259,10 +259,10 @@ def run_scraping():
             sys.exit(1)
 
     except KeyboardInterrupt:
-        logger.info("Scraping interrupted by user")
+        logger.warning("Scraping interrupted by user")
         sys.exit(0)
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.exception(f"An error occurred: {e}")
         sys.exit(1)
 
 
