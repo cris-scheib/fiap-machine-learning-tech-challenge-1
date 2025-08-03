@@ -35,7 +35,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 def get_user(db: Session, username: str):
-    return db.query(User).filter(User.username == username).first()
+    return db.query(User).filter(username == User.username).first()
 
 
 def authenticate_user(db: Session, username: str, password: str):
