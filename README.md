@@ -22,6 +22,14 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 
 O objetivo deste projeto é expor uma **API RESTful** para facilitar o acesso aos dados de diversos livros. Esses dados originalmente são extraídos via **web scraping** do site [Books to Scrape](https://books.toscrape.com/) 
 
+A API fornece endpoints para:
+
+- Cadastro e autenticação de usuários (OAuth2 Password Grant).
+- Consulta de informações de livros: listagem, busca por ID, busca por título/categoria.
+- Estatísticas gerais e por categoria.
+- Ação manual de scraping para atualização dos dados.
+- Health check da API.
+
 Os dados disponíveis envolvem informações sobre:
 
 - `Id`: Identificador do livro
@@ -90,9 +98,9 @@ Essa separação melhora a modularidade, favorece testes unitários e permite ev
 Você pode usar a API de duas formas: **localmente** no seu ambiente de desenvolvimento ou 
 consumindo a **versão já deployada**.
 
-Para sua conveniência, o repositório já inclui um banco de dados (`.sqlite`) e um arquivo (`.csv`) 
-com os dados atualizados obtidos via Web Scraping previamente, além de um usuário de testes já criado. 
-Isso permite que você teste a API imediatamente com uma base de dados de cerca de mil livros, sem precisar executar o Web Scraping.
+Para sua conveniência, o repositório já inclui um banco de dados (`.sqlite`) com cerca de mil livros e 
+um usuário de testes, além de um arquivo (`.csv`). Permitindo que você explore a API imediatamente.
+
 
 **Autenticação (válido para ambos os modos)**
 
@@ -140,42 +148,71 @@ Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no 
    cd api
    uvicorn main:app --reload
    ```
-5. **Execute o Scraping (Opcional)**
-
-    > **Atenção:** O processo de Web Scraping é demorado, levando mais de 30 minutos. 
-    > **Ele não é necessário para iniciar a API**, a menos que você queira gerar os dados do zero,e **antes de sua
-    execução certifique-se de criar ou ter um usuário criado**.
-
-   ```bash
-   cd api
-   python -m app.services.scrapper.scrapper_service
-   ```
 
 A API estará disponível em `http://127.0.0.1:8000`. 
 
 A documentação interativa é acessível em `http://127.0.0.1:8000/docs` (Swagger UI) 
 e `http://127.0.0.1:8000/redoc` (ReDoc).
 
+### Opcional: Executar o Web Scraping
+
+Utilize este processo apenas se desejar substituir os dados existentes por uma nova coleta.
+
+> **Atenção:** O processo é demorado (entre 30 minutos a 1 hora) e requer um usuário existente no banco de dados 
+> para associar os livros coletados.
+
+**Fluxo de trabalho para o scraping:**
+
+1.  **Certifique-se de que a API NÃO esteja rodando** (pressione `Ctrl+C` no terminal onde a API está ativa).
+2.  **Verifique se um usuário existe.** O `test_user` já está no banco de dados inicial. Se você limpou o banco, inicie a API primeiro, crie um usuário pelo endpoint `/users` e pare a API novamente.
+3.  **Execute o script de scraping.** No diretório raiz do projeto, execute:
+    ```bash
+    cd api
+    # Certifique-se de estar no diretório 'api'
+    python -m app.services.scrapper.scrapper_service
+    ```
+4.  **Pronto!** Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
+
+
 ## Endpoints
 
-### Autenticação (opcional)
-
-#### `POST /api/v1/auth/login`
-- **Descrição:** Gera um token JWT para acesso a rotas protegidas.
-- **Body Request:**
+### `POST /users/`
+- **Descrição:** Registra um novo usuário no sistema. Não requer autenticação.
+- **Corpo da Requisição (application/json)**
   ```json
-  { "username": "seu_usuario", "password": "sua_senha" }
+  {
+    "username": "bob",
+    "password": "strongpassword"
+  }
   ```
-- **Resposta (200):**
+- **Exemplo de Resposta (201 Created):**
   ```json
-  { "access_token": "<seu_token>", "token_type": "bearer" }
+  {
+    "id": 2,
+    "username": "bob"
+  }
   ```
 
-Inclua no header das requisições protegidas:
-```
-Authorization: Bearer <seu_token>
-```
-
+### `POST /users/token`
+- **Descrição:** Gera um token de acesso JWT para um usuário, com base em suas credenciais.
+- **Corpo da Requisição (application/x-www-form-urlencoded)**
+- **Exemplo de Resposta (200 Ok):**
+  ```json
+  {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "token_type": "bearer"
+  }
+  ```
+  
+### `GET /users/me`
+- **Descrição:** Obtém os detalhes do usuário atualmente autenticado. Requer autenticação.
+- **Exemplo de Resposta (200 Ok):**
+  ```json
+  {
+    "id": "1",
+    "username": "test_user"
+  }
+  ```
 ---
 
 ### `GET /api/v1/health`
@@ -192,15 +229,23 @@ Authorization: Bearer <seu_token>
 - **Resposta (200):**
   ```json
   [
-    { "id": 1, "title": "A Light in the Attic", "price": 51.77, "category": "Travel", "availability": "In stock", "rating": 3 },
-    ...
+    { 
+      "id": 824,
+      "title": "A Light in the Attic",
+      "price": 51.77,
+      "availability": "In Stock",
+      "rating": "Three",
+      "category": "Poetry",
+      "image_url": "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg" 
+    }
+    //outros livros
   ]
   ```
 
 ---
 
 ### `GET /api/v1/books/{id}`
-- **Descrição:** Obtém detalhes completos de um livro pelo seu ID.
+- **Descrição:** Retorna os detalhes de um livro específico pelo seu id.
 - **Path Param:**
   - `id` (int)
 - **Resposta (200):**
