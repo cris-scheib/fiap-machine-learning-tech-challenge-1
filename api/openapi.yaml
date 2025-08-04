@@ -1,32 +1,43 @@
 openapi: 3.0.3
 info:
   title: "FIAP ML Tech Challenge 1 – Books API"
-  description: "
-  **API RESTful para gerenciamento de livros obtidos via web scraping de https://books.toscrape.com.**\n\n
-  **Fornece endpoints para:**\n 
-  - Cadastro e autenticação de usuários (OAuth2 Password Grant).\n
-  - Consulta de informações de livros: listagem, busca por ID, busca por título/categoria.\n 
-  - Estatísticas gerais e por categoria.\n 
-  - Ação manual de scraping para atualização dos dados.\n
-  - Health check da API.\n\n
-  **Instruções de uso da API:**\n
-  1. Cadastre um usuário ou utilize o usuário de teste já existente:\n
-       • username: test_user  
-       • password: test12345  
-       (Para cadastrar outro usuário, use a request POST /users 
-       com JSON {\"username\":\"seu_user_name\",\"password\":\"seu_password\"}.)\n
-  2. Obter token: POST /auth/login com username=seu_usuario&password=sua_senha → retorna JSON com access_token, refresh_token e token_type.\n
-  3. Endpoints protegidos: incluir header Authorization: Bearer <access_token>.\n
-  4. Principais endpoints de livros: GET /api/v1/books, GET /api/v1/books/{id}, GET /api/v1/books/search, GET /api/v1/books/top-rated?limit={n}, GET /api/v1/books/price-range?min={min}&max={max}.\n
-  5. Estatísticas: GET /api/v1/stats/overview, GET /api/v1/stats/categories.\n
-  6. Disparar scraping: POST /api/v1/scraping → retorna 202 Accepted.\n
-  7. Health check: GET /health → retorna {\"status\": \"ok\"}.
-  "
+  description: |
+    ## 📚 API RESTful para gerenciamento de livros obtidos via web scraping de https://books.toscrape.com
+
+    Projeto de gerenciamento de livros obtidos via web scraping de
+    [Books to Scrape](https://books.toscrape.com).
+
+    **Principais recursos:**
+    - **Cadastro e autenticação de usuários** (OAuth2 Password Grant)
+    - **Consulta de livros**: listagem, busca por ID ou por título/categoria, mais avaliados e por média de preços
+    - **Estatísticas** gerais e por categoria
+    - **Trigger de scraping manual** para atualizar os dados
+    - **Health-check** da API
+
+    ## 🚀 Instruções de uso
+
+    1. **Cadastro de usuário**  
+       Cadastre um usuário ou utilize o de teste já existente:  
+       - **Username**: `test_user`  
+       - **Password**: `test12345`
+
+    2. **Obter token**  
+       `POST /auth/login`  
+       - Body (form-urlencoded):  
+         - `username`: seu_usuario  
+         - `password`: sua_senha  
+       - Retorna JSON com `access_token`, `refresh_token` e `token_type`
+
+    3. **Endpoints protegidos**  
+       Inclua no header:  
+       ```
+       Authorization: Bearer <access_token>
+       ```
   version: "1.0.0"
 
-#servers:
-  #- url: "https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api/docs#/"
-    #description: "Vercel server"
+servers:
+  - url: "https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api"
+    description: "Vercel server"
 
 components:
   schemas:
