@@ -1,5 +1,6 @@
 import logging
 import sys
+import yaml
 from pathlib import Path
 
 FILE = Path(__file__).resolve()
@@ -29,6 +30,11 @@ logger.info("Initializing database...")
 Base.metadata.create_all(bind=engine)
 logger.info("Database initialized successfully")
 
+def load_openapi():
+    BASE_DIR = Path(__file__).resolve().parent
+    with open(BASE_DIR / "openapi.yaml", encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
                
 app = FastAPI(
     title="Books API",
@@ -46,6 +52,8 @@ app = FastAPI(
         "url": "https://opensource.org/licenses/MIT",
     },
 )
+
+app.openapi_schema = load_openapi()
 
 app.add_middleware(
     CORSMiddleware,

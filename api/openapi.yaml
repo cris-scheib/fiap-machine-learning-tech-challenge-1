@@ -1,0 +1,600 @@
+openapi: 3.0.3
+info:
+  title: "FIAP ML Tech Challenge 1 – Books API"
+  description: "
+  **API RESTful para gerenciamento de livros obtidos via web scraping de https://books.toscrape.com.**\n\n
+  **Fornece endpoints para:**\n 
+  - Cadastro e autenticação de usuários (OAuth2 Password Grant).\n
+  - Consulta de informações de livros: listagem, busca por ID, busca por título/categoria.\n 
+  - Estatísticas gerais e por categoria.\n 
+  - Ação manual de scraping para atualização dos dados.\n
+  - Health check da API.\n\n
+  **Instruções de uso da API:**\n
+  1. Cadastre um usuário ou utilize o usuário de teste já existente:\n
+       • username: test_user  
+       • password: test12345  
+       (Para cadastrar outro usuário, use a request POST /users 
+       com JSON {\"username\":\"seu_user_name\",\"password\":\"seu_password\"}.)\n
+  2. Obter token: POST /auth/login com username=seu_usuario&password=sua_senha → retorna JSON com access_token, refresh_token e token_type.\n
+  3. Endpoints protegidos: incluir header Authorization: Bearer <access_token>.\n
+  4. Principais endpoints de livros: GET /api/v1/books, GET /api/v1/books/{id}, GET /api/v1/books/search, GET /api/v1/books/top-rated?limit={n}, GET /api/v1/books/price-range?min={min}&max={max}.\n
+  5. Estatísticas: GET /api/v1/stats/overview, GET /api/v1/stats/categories.\n
+  6. Disparar scraping: POST /api/v1/scraping → retorna 202 Accepted.\n
+  7. Health check: GET /health → retorna {\"status\": \"ok\"}.
+  "
+  version: "1.0.0"
+
+#servers:
+  #- url: "https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api/docs#/"
+    #description: "Vercel server"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+        - detail
+
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+      required:
+        - status
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "alice"
+      required:
+        - id
+        - username
+
+    UserCreate:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "bob"
+        password:
+          type: string
+          example: "strongpassword"
+      required:
+        - username
+        - password
+
+    UserOut:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "novo_usuario"
+      required:
+        - id
+        - username
+
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        token_type:
+          type: string
+          example: "bearer"
+      required:
+        - access_token
+        - refresh_token
+        - token_type
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 824
+        title:
+          type: string
+          example: "A Light in the Attic"
+        price:
+          type: number
+          format: float
+          example: 51.77
+        availability:
+          type: string
+          example: "In Stock"
+        rating:
+          type: string
+          example: "Three"
+        category:
+          type: string
+          example: "Poetry"
+        image_url:
+          type: string
+          example: "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg"
+      required:
+        - id
+        - title
+        - price
+        - availability
+        - rating
+        - category
+        - image_url
+
+    Category:
+      type: string
+      properties:
+        name:
+          type: string
+          example: "Poetry"
+      required:
+        - name
+
+    Stats:
+      type: object
+      properties:
+        total_books:
+          type: integer
+          example: 1000
+        average_price:
+          type: number
+          format: float
+          example: 35.12
+        rating_distribution:
+          type: object
+          description: "Distribution of books by rating"
+          example:
+            Five: 197
+            Four: 181
+            One: 228
+            Three: 206
+            Two: 199
+          required:
+            - total_books
+            - average_price
+            - rating_distribution
+
+    CategoryStats:
+      type: object
+      properties:
+        category:
+          type: string
+          example: "Poetry"
+        total_books:
+          type: integer
+          example: 42
+        average_price:
+          type: number
+          format: float
+          example: 28.99
+      required:
+        - category
+        - total_books
+        - average_price
+
+  #securitySchemes:
+    #OAuth2PasswordBearer:
+      #type: oauth2
+      #flows:
+        #password:
+          #tokenUrl: /users/token
+          #scopes: {}
+
+#security:
+  #- OAuth2PasswordBearer: []
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: ["Health"]
+      summary: Health check
+      description:  Verifica status da API e conectividade com os dados.
+      responses:
+        '200':
+          description: API está saudável
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+
+  /users:
+    post:
+      tags: ["Users"]
+      summary: Cria um novo usuário
+      description: Registra um novo usuário no sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        '200':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserCreate"
+        '400':
+          description: Usuário já existe
+
+  /users/me:
+    get:
+      tags: ["Users"]
+      summary: Detalhes do usuário
+      description: Obtém detalhes do usuário autenticado
+      responses:
+        '200':
+          description: Detalhes do usuário
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '401':
+          description: Usuário não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      tags: [ "Auth" ]
+      summary: Cria o token de acesso
+      description: Cria e retorna o token de acesso JWT do usuário autenticado
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Token gerado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        '401':
+          description: Nome de usuário ou senha incorretos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/refresh:
+    post:
+      tags: [ "Auth" ]
+      summary: Renova access token
+      description: Usa refresh token para gerar novo access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              required: ["refresh_token"]
+      responses:
+        200:
+          description: Novo access token gerado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        401:
+          description: Refresh token inválido ou expirado
+
+  /api/v1/books:
+    get:
+      tags: ["Books"]
+      summary: Lista todos os livros
+      description: Lista todos os livros disponíveis na base de dados.
+      responses:
+        '200':
+          description: Lista de livros
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+        '401':
+          description: Usuário não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/books/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID do livro a ser detalhado
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: ["Books"]
+      summary: Detalhe de um livro pelo ID
+      description: Retorna detalhes completos de um livro específico pelo ID.
+      responses:
+        '200':
+          description: Detalhes do livro
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        '404':
+          description: "Livro não encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/books/search:
+    get:
+      tags: ["Books"]
+      summary: "Busca livros por título e/ou categoria"
+      description: "Retorna uma lista de livros filtrados por título e ou categoria, 
+      caso nenhum título ou categoria seja passado retorna uma lista com todos os livros."
+      parameters:
+        - name: title
+          in: query
+          description: Título (ou parte) do livro
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Nome da categoria
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resultados da busca
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+        '404':
+          description: "Nenhum livro encontrado na base de dados"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/books/top-rated:
+    get:
+      tags: ["Books"]
+      summary: Lista livros com melhor avaliação
+      description: Retorna uma lista de livros com as melhores avaliações (rating mais alto)
+      parameters:
+        - name: limit
+          in: query
+          description: Número de livros com as avaliações mais altas
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            example: 10
+      responses:
+        '200':
+          description: Resultados dos livros com melhores avaliações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: "Erro no servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/books/price-range:
+    get:
+      tags: ["Books"]
+      summary: "Filtra livros dentro de uma faixa de preço específica."
+      description: "Retorna uma lista filtrada de livros dentro de uma faixa de preço específica que está entre **min** e **max** (inclusivo)"
+      parameters:
+        - name: min
+          in: query
+          description: "Preço mínimo"
+          required: true
+          schema:
+            type: number
+            format: float
+            minimum: 0.0
+            example: 20.0
+        - name: max
+          in: query
+          description: "Preço máximo"
+          required: true
+          schema:
+            type: number
+            format: float
+            minimum: 0.0
+            example: 50.0
+      responses:
+        '200':
+          description: "Uma lista de livros dentro da faixa de preço fornecida"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+        '400':
+          description: "Invalid price range"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+
+  /api/v1/categories:
+    get:
+      tags: ["Categories"]
+      summary: "Lista todas as categorias"
+      description: "Retorna uma lista contendo todas as categorias dos livros disponíveis"
+      responses:
+        '200':
+          description: "Lista de categorias"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+        '404':
+          description: "Categoria não encontrada"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/stats/overview:
+    get:
+      tags: ["Stats"]
+      summary: "Estatísticas gerais dos livros"
+      description: "Retorna estatísticas gerais, como número total de livros, preço médio 
+      e distribuição de classificação."
+      responses:
+        '200':
+          description: "Estatísticas de visão geral retornadas com sucesso"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: "Erro no servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/stats/categories:
+    get:
+      tags: ["Stats"]
+      summary: "Obtenha estatísticas por categoria"
+      description: "Retorna estatísticas agrupadas por categoria, incluindo número de livros 
+      e preço médio por categoria."
+      responses:
+        '200':
+          description: "Estatísticas de categoria retornadas com sucesso"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryStats"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: "Erro no servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/scraping/trigger:
+    post:
+      tags: ["Scraping"]
+      summary: Aciona manualmente o processo de scraping
+      responses:
+        '202':
+          description: Scraping iniciado"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Erro ao iniciar scraping
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
