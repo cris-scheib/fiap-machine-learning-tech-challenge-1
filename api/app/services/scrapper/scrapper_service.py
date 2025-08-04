@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import logging
 from sqlalchemy.orm import Session
 from ...core.database import get_db
-from ...models.book_model import Book
+from ...entities.book_entity import Book
 from ...services.scrapper.scrapper_utils import (
     clean_text, extract_price, extract_rating, check_availability,
     safe_request, validate_url, create_filename

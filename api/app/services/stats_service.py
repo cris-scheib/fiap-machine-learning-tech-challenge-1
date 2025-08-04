@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, Float
-from app.models.book_model import Book
-from fastapi import HTTPException, status
+from app.entities.book_entity import Book
+from fastapi import HTTPException
 from typing import List, Dict
 
 

@@ -69,7 +69,7 @@ fiap-machine-learning-tech-challenge-1/
 │   └── app/                     # Código-fonte da API
 │       ├── controllers/         # Implementação dos endpoints (routes)
 │       ├── core/                # Configurações de autenticação e sessão de BD
-│       ├── models/              # Modelos SQLAlchemy
+│       ├── entities/            # Contém as entidades do banco (Modelos SQLAlchemy)
 │       ├── schemas/             # Schemas Pydantic (request/response)
 │       └── services/            # Lógica de negócio e componente de scraping
 ├── requirements.txt             # Dependências gerais do projeto
@@ -83,13 +83,13 @@ fiap-machine-learning-tech-challenge-1/
 
 **services**: Implementa a lógica de negócio, orquestrando operações de scraping e acesso a dados via models.
 
-**models**: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
+**entities**: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
 
 **schemas**: Contém os Pydantic models para validação e serialização de requisições e respostas.
 
 **core**: Agrupa configurações centrais, como autenticação JWT, inicialização de sessão de banco de dados e configurações gerais.
 
-Essa separação melhora a modularidade, favorece testes unitários e permite evoluir cada camada independentemente.
+Essa separação melhora a modularidade, e permite evoluir cada camada independentemente.
 
 -----------------------------------
 
@@ -111,7 +111,7 @@ Usuário de teste:
     username: test_user  
     password: test12345
 
-Não se esqueça de gerar e usar o token JWT antes de acessar os dados.
+Não se esqueça de gerar e usar o token JWT antes de acessar os endpoints que requerem autenticação.
 
 ### ☁️ Via Deploy (produção)
 
@@ -177,7 +177,7 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
 ## Endpoints
 
 ### `POST /users/`
-- **Descrição:** Registra um novo usuário no sistema. Não requer autenticação.
+- **Descrição:** Registra um novo usuário no sistema.
 - **Corpo da Requisição (application/json)**
   ```json
   {
@@ -185,27 +185,16 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
     "password": "strongpassword"
   }
   ```
-- **Exemplo de Resposta (201 Created):**
+- **Exemplo de Resposta (200 Created):**
   ```json
   {
-    "id": 2,
-    "username": "bob"
-  }
-  ```
-
-### `POST /users/token`
-- **Descrição:** Gera um token de acesso JWT para um usuário, com base em suas credenciais.
-- **Corpo da Requisição (application/x-www-form-urlencoded)**
-- **Exemplo de Resposta (200 Ok):**
-  ```json
-  {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "bearer"
+    "username": "bob",
+    "password": "strongpassword"
   }
   ```
   
 ### `GET /users/me`
-- **Descrição:** Obtém os detalhes do usuário atualmente autenticado. Requer autenticação.
+- **Descrição:** Obtém os detalhes do usuário atualmente autenticado. **Requer autenticação.**
 - **Exemplo de Resposta (200 Ok):**
   ```json
   {
@@ -213,6 +202,34 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
     "username": "test_user"
   }
   ```
+
+---
+
+### `POST /auth/login`
+- **Descrição:** Realiza login e gera um token de acesso JWT para um usuário, com base em suas credenciais.
+- **Corpo da Requisição:**
+- `username`(string, obrigatório)
+- `password`(string, obrigatório)
+- **Exemplo de Resposta (200 Ok):**
+  ```json
+  {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTQzNDM1OTV9.ajROUaSSezlfxecLmcGdks7WsLSLj2bGOBFf3pM5xtk",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTQ0MjYzOTV9.XVcXe6bMY9dGuvpPzEhf-35dQIL53AYf-li-A8Eu8tw",
+    "token_type": "bearer"
+  }
+  ```
+### `POST /auth/refresh`
+- **Descrição:** Usa refresh token para gerar novo access token.
+- **Corpo da Requisição:**
+- `refresh_token`: (string, obrigatório)
+- **Exemplo de Resposta (200 Ok):**
+  ```json
+  {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "token_type": "bearer"
+  }
+  ```
+
 ---
 
 ### `GET /api/v1/health`
@@ -225,7 +242,7 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
 ---
 
 ### `GET /api/v1/books`
-- **Descrição:** Lista todos os livros carregados. Requer autenticação.
+- **Descrição:** Lista todos os livros carregados. **Requer autenticação.**
 - **Resposta (200):**
   ```json
   [
@@ -242,7 +259,7 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
   ```
 
 ### `GET /api/v1/books/{id}`
-- **Descrição:** Retorna os detalhes de um livro específico pelo seu id. Requer autenticação.
+- **Descrição:** Retorna os detalhes de um livro específico pelo seu id. **Requer autenticação.**
 - **Path Param:**
   - `id` (int, obrigatório)
 - **Resposta (200):** Detalhes de um livro
@@ -264,7 +281,7 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
 
 ### `GET /api/v1/books/search`
 - **Descrição:** Busca livros por título e/ou categoria. Se nenhum parâmetro for fornecido, 
-retorna todos os livros. Requer autenticação.
+retorna todos os livros. **Requer autenticação.**
 - **Query Params:**
   - `title` (string, opcional)
   - `category` (string, opcional)
@@ -283,7 +300,7 @@ retorna todos os livros. Requer autenticação.
   ]
   ```
 ### `/api/v1/books/top-rated`
-- **Descrição:** Retorna uma lista dos livros com as melhores avaliações em ordem. Requer autenticação.
+- **Descrição:** Retorna uma lista dos livros com as melhores avaliações em ordem. **Requer autenticação.**
 - **Query Params:**
   - `limit` (int, opcional, valor padrão = 10)
 - **Resposta (200):** Lista de livros com as melhores avaliações.
@@ -303,7 +320,7 @@ retorna todos os livros. Requer autenticação.
   ```  
 
 ### `/api/v1/books/price-range`
-- **Descrição:** Filtra livros dentro de uma faixa de preço específica (inclusivo). Requer autenticação.
+- **Descrição:** Filtra livros dentro de uma faixa de preço específica (inclusivo). **Requer autenticação.**
 - **Query Params:**
   - `min` (float, obrigatório)
   - `max` (float, obrigatório)
@@ -326,7 +343,7 @@ retorna todos os livros. Requer autenticação.
 ---
 
 ### `GET /api/v1/categories`
-- **Descrição:** Retorna todas as categorias existentes. Requer autenticação.
+- **Descrição:** Retorna todas as categorias existentes. **Requer autenticação.**
 - **Resposta (200):** Lista de todas as categorias
   ```json
   ["Travel", "Mystery", "Historical Fiction", ...]
@@ -336,7 +353,7 @@ retorna todos os livros. Requer autenticação.
 
 ### `GET /api/v1/stats/overview`
 - **Descrição:** Retorna estatísticas gerais, como número total de livros, preço médio 
-e distribuição de classificação. Requer autenticação.
+e distribuição de classificação. **Requer autenticação.**
 - **Resposta (200):** Estatísticas
   ```json
   {
@@ -354,7 +371,7 @@ e distribuição de classificação. Requer autenticação.
 
 ### `GET /api/v1/stats/categories`
 - **Descrição:** Retorna estatísticas detalhadas para cada categoria, 
-incluindo contagem de livros e preço médio. Requer autenticação.
+incluindo contagem de livros e preço médio. **Requer autenticação.**
 - **Resposta (200):** Lista de Estatísticas detalhadas por categoria
   ```json
   [
@@ -371,7 +388,7 @@ incluindo contagem de livros e preço médio. Requer autenticação.
 
 ### `POST /api/v1/scraping/trigger`
 - **Descrição:** Inicia o processo de web scraping em segundo plano para atualizar a 
-base de dados de livros. Requer autenticação.
+base de dados de livros. **Requer autenticação.**
 - **Resposta (202):** A API retornará um status 202 com uma mensagem para indicar que a tarefa foi iniciada com sucesso. 
 Não há corpo na resposta.
   
