@@ -12,7 +12,7 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 - [Descrição](#descrição)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Arquitetura](#arquitetura)
-- [Instalação](#instalação)
+- [Como Utilizar](#como-utilizar)
 - [Endpoints](#endpoints)
 - [Licença, Autores e Agradecimentos](#licença-autores)
 
@@ -24,12 +24,14 @@ O objetivo deste projeto é expor uma **API RESTful** para facilitar o acesso ao
 
 Os dados disponíveis envolvem informações sobre:
 
-- Id
-- Título
-- Preço
-- Disponibilidade
-- Classificação
-- Categoria
+- `Id`: Identificador do livro
+- `Título`: Título do livro
+- `Preço`: Preço do livro
+- `Disponibilidade`: Status da disponibilidade do livro
+- `Avaliação`: Avaliação do livro em estrelas
+- `Categoria`: Categoria do livro
+- `Imagem`: Link da imagem do livro
+
 
 -----------------------------------
 
@@ -83,7 +85,33 @@ Essa separação melhora a modularidade, favorece testes unitários e permite ev
 
 -----------------------------------
 
-## Instalação
+## Como Utilizar
+
+Você pode usar a API de duas formas: **localmente** no seu ambiente de desenvolvimento ou 
+consumindo a **versão já deployada**.
+
+Para sua conveniência, o repositório já inclui um banco de dados (`.sqlite`) e um arquivo (`.csv`) 
+com os dados atualizados obtidos via Web Scraping previamente, além de um usuário de testes já criado. 
+Isso permite que você teste a API imediatamente com uma base de dados de cerca de mil livros, sem precisar executar o Web Scraping.
+
+**Autenticação (válido para ambos os modos)**
+
+Cadastre um usuário (ou utilize o de teste)
+
+Usuário de teste:
+
+    username: test_user  
+    password: test12345
+
+Não se esqueça de gerar e usar o token JWT antes de acessar os dados.
+
+### ☁️ Via Deploy (produção)
+
+Acesse a versão pública em: https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api/docs 
+
+Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no navegador.
+
+### 🏠 Execução Local
 
 ### Pré-requisitos
 
@@ -107,23 +135,26 @@ Essa separação melhora a modularidade, favorece testes unitários e permite ev
    ```bash
    pip install -r requirements.txt
    ```
-4. **Execute o Scraping**
+4. **Inicie a API**
+   ```bash
+   cd api
+   uvicorn main:app --reload
+   ```
+5. **Execute o Scraping (Opcional)**
+
+    > **Atenção:** O processo de Web Scraping é demorado, levando mais de 30 minutos. 
+    > **Ele não é necessário para iniciar a API**, a menos que você queira gerar os dados do zero,e **antes de sua
+    execução certifique-se de criar ou ter um usuário criado**.
+
    ```bash
    cd api
    python -m app.services.scrapper.scrapper_service
-   cd ..
-   ```
-5. **Inicie a API**
-   ```bash
-   cd api
-   uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 A API estará disponível em `http://127.0.0.1:8000`. 
+
 A documentação interativa é acessível em `http://127.0.0.1:8000/docs` (Swagger UI) 
 e `http://127.0.0.1:8000/redoc` (ReDoc).
-
-https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api/docs
 
 ## Endpoints
 
@@ -158,9 +189,6 @@ Authorization: Bearer <seu_token>
 
 ### `GET /api/v1/books`
 - **Descrição:** Lista todos os livros carregados.
-- **Query Params (opcionais):**
-  - `limit` (int): número máximo de itens por página.
-  - `offset` (int): índice de início para paginação.
 - **Resposta (200):**
   ```json
   [
