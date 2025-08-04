@@ -263,9 +263,9 @@ paths:
 
   /auth/login:
     post:
-      tags: [ "Auth" ]
-      summary: Cria o token de acesso
-      description: Cria e retorna o token de acesso JWT do usuário autenticado
+      tags: ["Auth"]
+      summary: Login para obter o token de acesso
+      description: Realiza login para criar e retornar o token de acesso JWT do usuário autenticado
       requestBody:
         required: true
         content:
@@ -296,9 +296,9 @@ paths:
 
   /auth/refresh:
     post:
-      tags: [ "Auth" ]
-      summary: Renova access token
-      description: Usa refresh token para gerar novo access token
+      tags: ["Auth"]
+      summary: "Renova access token"
+      description: "Usa refresh token para gerar novo access token"
       requestBody:
         required: true
         content:

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import cast, Float
-from app.models.book_model import Book
+from app.entities.book_entity import Book
 from fastapi import HTTPException, status
 from typing import List, Optional
 from app.exceptions.BookNotFoundException import BookNotFoundException
