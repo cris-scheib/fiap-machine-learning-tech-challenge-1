@@ -219,7 +219,8 @@ class BooksToScrapeScraper:
                 price=float(book.get("price", 0)),
                 category=book.get("category", ""),
                 rating=book.get("rating", ""),
-                availability=book.get("availability", "")
+                availability=book.get("availability", ""),
+                image_url=book.get("image_url", ""),
             )
             books_to_add.append(b)
 

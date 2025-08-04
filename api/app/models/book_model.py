@@ -13,6 +13,7 @@ class Book(Base):
     availability = Column(String, nullable=False)
     rating = Column(String, nullable=True)
     category = Column(String, nullable=False, index=True)
+    image_url = Column(String, nullable=True)
     
     def __repr__(self):
         return f"<Book(id={self.id}, title='{self.title}', category='{self.category}')>"
