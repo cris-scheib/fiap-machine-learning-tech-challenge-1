@@ -15,28 +15,26 @@ router = APIRouter(
 
 @router.get("/",
          response_model=List[BookSchema],
-         summary="List all books",
-         description="Returns a list with all books registered in the system",
          status_code=status.HTTP_200_OK,
-         responses={
-             200: {"description": "Book list returned successfully"},
-             404: {"description": "No books found"},
-             500: {"description": "Internal server error"}
-         })
+         #responses={
+             #200: {"description": "Book list returned successfully"},
+             #404: {"description": "No books found"},
+             #500: {"description": "Internal server error"}
+         #})
+)
 async def list_books(db: Session = Depends(get_db)) -> List[BookSchema]:
     logger.info("Endpoint /books/ accessed - Listing all books")
     return get_all_books(db)
 
 @router.get("/search",
          response_model=List[BookSchema],
-         summary="Search books by title and category",
-         description="Returns a list of books filtered by title and/or category",
          status_code=status.HTTP_200_OK,
-         responses={
-             200: {"description": "Filtered book list returned successfully"},
-             404: {"description": "No books found with the provided criteria"},
-             500: {"description": "Internal server error"}
-         })
+         #responses={
+             #200: {"description": "Filtered book list returned successfully"},
+             #404: {"description": "No books found with the provided criteria"},
+             #500: {"description": "Internal server error"}
+         #})
+)
 async def list_books_by_title_and_category(
     title: Optional[str] = Query(None, description="Title or part of the book title"),
     category: Optional[str] = Query(None, description="Book category (optional)"),
@@ -48,9 +46,8 @@ async def list_books_by_title_and_category(
 
 @router.get("/top-rated",
          response_model=List[BookSchema],
-         summary="List top-rated books",
-         description="Returns a list of books with the highest rating",
-         status_code=status.HTTP_200_OK)
+         status_code=status.HTTP_200_OK
+)
 async def top_rated_books(
     limit: int = Query(10, description="Number of top books to return"),
     db: Session = Depends(get_db)
@@ -60,8 +57,6 @@ async def top_rated_books(
 
 @router.get("/price-range",
          response_model=List[BookSchema],
-         summary="List books within a price range",
-         description="Returns a list of books with price between min and max",
          status_code=status.HTTP_200_OK)
 async def books_by_price_range(
     min: float = Query(..., description="Minimum price"),
@@ -73,14 +68,13 @@ async def books_by_price_range(
 
 @router.get("/{id}",
          response_model=BookSchema,
-         summary="Search book by ID",
-         description="Returns the details of a specific book by its ID",
          status_code=status.HTTP_200_OK,
-         responses={
-             200: {"description": "Book found successfully"},
-             404: {"description": "Book not found"},
-             500: {"description": "Internal server error"}
-         })
+         #responses={
+             #200: {"description": "Book found successfully"},
+             #404: {"description": "Book not found"},
+             #500: {"description": "Internal server error"}
+         #})
+)
 async def get_book(
     id: int = Path(..., title="Book ID", description="ID of the book to be searched", gt=0),
     db: Session = Depends(get_db)
