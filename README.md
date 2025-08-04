@@ -12,7 +12,7 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 - [Descrição](#descrição)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Arquitetura](#arquitetura)
-- [Instalação](#instalação)
+- [Como Utilizar](#como-utilizar)
 - [Endpoints](#endpoints)
 - [Licença, Autores e Agradecimentos](#licença-autores)
 
@@ -22,14 +22,24 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 
 O objetivo deste projeto é expor uma **API RESTful** para facilitar o acesso aos dados de diversos livros. Esses dados originalmente são extraídos via **web scraping** do site [Books to Scrape](https://books.toscrape.com/) 
 
+A API fornece endpoints para:
+
+- Cadastro e autenticação de usuários (OAuth2 Password Grant).
+- Consulta de informações de livros: listagem, busca por ID, busca por título/categoria.
+- Estatísticas gerais e por categoria.
+- Ação manual de scraping para atualização dos dados.
+- Health check da API.
+
 Os dados disponíveis envolvem informações sobre:
 
-- Id
-- Título
-- Preço
-- Disponibilidade
-- Classificação
-- Categoria
+- `Id`: Identificador do livro
+- `Título`: Título do livro
+- `Preço`: Preço do livro
+- `Disponibilidade`: Status da disponibilidade do livro
+- `Avaliação`: Avaliação do livro em estrelas
+- `Categoria`: Categoria do livro
+- `Imagem`: Link da imagem do livro
+
 
 -----------------------------------
 
@@ -83,7 +93,33 @@ Essa separação melhora a modularidade, favorece testes unitários e permite ev
 
 -----------------------------------
 
-## Instalação
+## Como Utilizar
+
+Você pode usar a API de duas formas: **localmente** no seu ambiente de desenvolvimento ou 
+consumindo a **versão já deployada**.
+
+Para sua conveniência, o repositório já inclui um banco de dados (`.sqlite`) com cerca de mil livros e 
+um usuário de testes, além de um arquivo (`.csv`). Permitindo que você explore a API imediatamente.
+
+
+**Autenticação (válido para ambos os modos)**
+
+Cadastre um usuário (ou utilize o de teste)
+
+Usuário de teste:
+
+    username: test_user  
+    password: test12345
+
+Não se esqueça de gerar e usar o token JWT antes de acessar os dados.
+
+### ☁️ Via Deploy (produção)
+
+Acesse a versão pública em: https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api/docs 
+
+Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no navegador.
+
+### 🏠 Execução Local
 
 ### Pré-requisitos
 
@@ -107,44 +143,76 @@ Essa separação melhora a modularidade, favorece testes unitários e permite ev
    ```bash
    pip install -r requirements.txt
    ```
-4. **Execute o Scraping**
+4. **Inicie a API**
    ```bash
    cd api
-   python -m app.services.scrapper.scrapper_service
-   cd ..
-   ```
-5. **Inicie a API**
-   ```bash
-   cd api
-   uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   uvicorn main:app --reload
    ```
 
 A API estará disponível em `http://127.0.0.1:8000`. 
+
 A documentação interativa é acessível em `http://127.0.0.1:8000/docs` (Swagger UI) 
 e `http://127.0.0.1:8000/redoc` (ReDoc).
 
-https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api/docs
+### Opcional: Executar o Web Scraping
+
+Utilize este processo apenas se desejar substituir os dados existentes por uma nova coleta.
+
+> **Atenção:** O processo é demorado (entre 30 minutos a 1 hora) e requer um usuário existente no banco de dados 
+> para associar os livros coletados.
+
+**Fluxo de trabalho para o scraping:**
+
+1.  **Certifique-se de que a API NÃO esteja rodando** (pressione `Ctrl+C` no terminal onde a API está ativa).
+2.  **Verifique se um usuário existe.** O `test_user` já está no banco de dados inicial. Se você limpou o banco, inicie a API primeiro, crie um usuário pelo endpoint `/users` e pare a API novamente.
+3.  **Execute o script de scraping.** No diretório raiz do projeto, execute:
+    ```bash
+    cd api
+    # Certifique-se de estar no diretório 'api'
+    python -m app.services.scrapper.scrapper_service
+    ```
+4.  **Pronto!** Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
+
 
 ## Endpoints
 
-### Autenticação (opcional)
-
-#### `POST /api/v1/auth/login`
-- **Descrição:** Gera um token JWT para acesso a rotas protegidas.
-- **Body Request:**
+### `POST /users/`
+- **Descrição:** Registra um novo usuário no sistema. Não requer autenticação.
+- **Corpo da Requisição (application/json)**
   ```json
-  { "username": "seu_usuario", "password": "sua_senha" }
+  {
+    "username": "bob",
+    "password": "strongpassword"
+  }
   ```
-- **Resposta (200):**
+- **Exemplo de Resposta (201 Created):**
   ```json
-  { "access_token": "<seu_token>", "token_type": "bearer" }
+  {
+    "id": 2,
+    "username": "bob"
+  }
   ```
 
-Inclua no header das requisições protegidas:
-```
-Authorization: Bearer <seu_token>
-```
-
+### `POST /users/token`
+- **Descrição:** Gera um token de acesso JWT para um usuário, com base em suas credenciais.
+- **Corpo da Requisição (application/x-www-form-urlencoded)**
+- **Exemplo de Resposta (200 Ok):**
+  ```json
+  {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "token_type": "bearer"
+  }
+  ```
+  
+### `GET /users/me`
+- **Descrição:** Obtém os detalhes do usuário atualmente autenticado. Requer autenticação.
+- **Exemplo de Resposta (200 Ok):**
+  ```json
+  {
+    "id": "1",
+    "username": "test_user"
+  }
+  ```
 ---
 
 ### `GET /api/v1/health`
@@ -157,217 +225,166 @@ Authorization: Bearer <seu_token>
 ---
 
 ### `GET /api/v1/books`
-- **Descrição:** Lista todos os livros carregados.
-- **Query Params (opcionais):**
-  - `limit` (int): número máximo de itens por página.
-  - `offset` (int): índice de início para paginação.
+- **Descrição:** Lista todos os livros carregados. Requer autenticação.
 - **Resposta (200):**
   ```json
   [
-    { "id": 1, "title": "A Light in the Attic", "price": 51.77, "category": "Travel", "availability": "In stock", "rating": 3 },
-    ...
+    { 
+      "id": 824,
+      "title": "A Light in the Attic",
+      "price": 51.77,
+      "availability": "In Stock",
+      "rating": "Three",
+      "category": "Poetry",
+      "image_url": "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg" 
+    }
   ]
   ```
 
----
-
 ### `GET /api/v1/books/{id}`
-- **Descrição:** Obtém detalhes completos de um livro pelo seu ID.
+- **Descrição:** Retorna os detalhes de um livro específico pelo seu id. Requer autenticação.
 - **Path Param:**
-  - `id` (int)
-- **Resposta (200):**
+  - `id` (int, obrigatório)
+- **Resposta (200):** Detalhes de um livro
   ```json
-  { "id": 1, "title": "A Light in the Attic", "price": 51.77, "category": "Travel", "availability": "In stock", "rating": 3, "description": "Descrição detalhada..." }
+  {
+    "id": 824,
+    "title": "A Light in the Attic",
+    "price": 51.77,
+    "availability": "In Stock",
+    "rating": "Three",
+    "category": "Poetry",
+    "image_url": "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg"
+  }
   ```
 - **Resposta (404):**
   ```json
   { "detail": "Book not found" }
   ```
 
----
-
 ### `GET /api/v1/books/search`
-- **Descrição:** Busca livros por título parcial e/ou categoria.
+- **Descrição:** Busca livros por título e/ou categoria. Se nenhum parâmetro for fornecido, 
+retorna todos os livros. Requer autenticação.
 - **Query Params:**
   - `title` (string, opcional)
   - `category` (string, opcional)
 - **Resposta (200):** Lista de livros que atendem aos filtros.
+  ```json
+  [
+    {
+      "id": 824,
+      "title": "A Light in the Attic",
+      "price": 51.77,
+      "availability": "In Stock",
+      "rating": "Three",
+      "category": "Poetry",
+      "image_url": "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg"
+    }
+  ]
+  ```
+### `/api/v1/books/top-rated`
+- **Descrição:** Retorna uma lista dos livros com as melhores avaliações em ordem. Requer autenticação.
+- **Query Params:**
+  - `limit` (int, opcional, valor padrão = 10)
+- **Resposta (200):** Lista de livros com as melhores avaliações.
+  ```json
+  [
+    {
+      "id": 11,
+      "title": "1,000 Places to See Before You Die",
+      "price": 26.08,
+      "availability": "In Stock",
+      "rating": "Five",
+      "category": "Travel",
+      "image_url": "https://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg"
+    }
+    // Outros 9 livros
+  ]
+  ```  
 
+### `/api/v1/books/price-range`
+- **Descrição:** Filtra livros dentro de uma faixa de preço específica (inclusivo). Requer autenticação.
+- **Query Params:**
+  - `min` (float, obrigatório)
+  - `max` (float, obrigatório)
+- **Resposta (200):** Lista de livros com os valores de uma faixa específica.
+  ```json
+  [
+    {
+      "id": 11,
+      "title": "1,000 Places to See Before You Die",
+      "price": 26.08,
+      "availability": "In Stock",
+      "rating": "Five",
+      "category": "Travel",
+      "image_url": "https://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg"
+    }
+    // Outros 9 livros
+  ]
+  ``` 
+  
 ---
 
 ### `GET /api/v1/categories`
-- **Descrição:** Retorna todas as categorias existentes.
-- **Resposta (200):**
+- **Descrição:** Retorna todas as categorias existentes. Requer autenticação.
+- **Resposta (200):** Lista de todas as categorias
   ```json
   ["Travel", "Mystery", "Historical Fiction", ...]
   ```
+
+---
+
+### `GET /api/v1/stats/overview`
+- **Descrição:** Retorna estatísticas gerais, como número total de livros, preço médio 
+e distribuição de classificação. Requer autenticação.
+- **Resposta (200):** Estatísticas
+  ```json
+  {
+    "total_books": 1011,
+    "average_price": 35.12,
+    "rating_distribution": {
+      "Five": 197,
+      "Four": 181,
+      "One": 228,
+      "Three": 206,
+      "Two": 199
+      }
+  }
+  ```
+
+### `GET /api/v1/stats/categories`
+- **Descrição:** Retorna estatísticas detalhadas para cada categoria, 
+incluindo contagem de livros e preço médio. Requer autenticação.
+- **Resposta (200):** Lista de Estatísticas detalhadas por categoria
+  ```json
+  [
+    {
+      "category": "Poetry",
+      "total_books": 19,
+      "average_price": 47.66
+    }
+    // ... outras estatísticas de categoria
+  ]
+  ```
+  
+---
+
+### `POST /api/v1/scraping/trigger`
+- **Descrição:** Inicia o processo de web scraping em segundo plano para atualizar a 
+base de dados de livros. Requer autenticação.
+- **Resposta (202):** A API retornará um status 202 com uma mensagem para indicar que a tarefa foi iniciada com sucesso. 
+Não há corpo na resposta.
+  
+---
 
 ## Licença, Autores
 
 ### 🧑‍💻 Desenvolvido por
 
-- `Beatriz Rosa Carneiro Gomes - RM`
+- `Beatriz Rosa Carneiro Gomes - RM365967`
 - `Cristine Scheibler - RM365433`
 - `Guilherme Fernandes Dellatin - RM365508`
 - `Iana Alexandre Neri - RM360484`
 - `João Lucas Oliveira Hilario - RM366185`
 
 Este projeto é apenas para fins educacionais e segue a licença MIT.
-
-
----------------- Lembrete para remover abaixo ----------------
-### Features
-
-- **Complete Data Extraction**: Title, price, rating, availability, category, image URL
-- **Robust Error Handling**: Retry logic and comprehensive logging
-- **Respectful Scraping**: Configurable delays and rate limiting
-- **Pagination Support**: Automatically handles multi-page categories
-- **Data Quality**: Text cleaning and normalization
-
-### Output
-
-The scraper creates a CSV file in the `data/` directory with the following columns:
-- `title`: Book title
-- `price`: Numeric price value
-- `rating`: Star rating (One, Two, Three, Four, Five)
-- `availability`: Availability status
-- `category`: Book category
-- `image_url`: Full URL to the book cover image
-- `book_url`: URL to the book detail page
-
-### Configuration
-
-You can modify the following in `scripts/scrapper.py`:
-- `DELAY_BETWEEN_REQUESTS`: Delay between requests (default: 1.0 seconds)
-- `MAX_RETRIES`: Maximum retry attempts (default: 3)
-
-## API <a name="api"></a>
-
-### Quick Start
-
-1. Create and activate a Python virtual environment:
-```bash
-python3 -m venv venv
-source venv/bin/activate  # Linux/macOS
-# or
-venv\Scripts\activate  # Windows
-```
-
-2. Install dependencies:
-```bash
-# Option 1: Using pip directly
-pip install -r requirements.txt
-
-# Option 2: Using the installation script
-python install_dependencies.py
-```
-
-> **Note**: If you encounter import errors, make sure to run the installation script to properly install all dependencies.
-
-3. Run the script to start the server:
-```bash
-# Option 1: Standard startup
-python start_server.py
-
-# Option 2: Startup with dependency checks (recommended if you have import errors)
-python start_server_with_checks.py
-```
-
-4. Or navigate to the API directory and run:
-```bash
-cd api
-uvicorn main:app --reload
-```
-
-### Available Endpoints
-
-- `GET /api/v1/books`: List all books
-- `GET /api/v1/books/search?title=&category=`: Search books by title and category
-- `GET /api/v1/books/{id}`: Get a book by ID
-
-### Endpoint GET /api/v1/books/{id}
-
-This endpoint returns the details of a specific book by its ID.
-
-**Example Response (Book found):**
-```json
-{
-  "id": 1,
-  "title": "A Light in the Attic",
-  "price": 51.77,
-  "availability": "In stock",
-  "rating": "Three",
-  "category": "Poetry"
-}
-```
-
-**Example Response (Book not found):**
-```json
-{
-  "detail": "Error Book not found."
-}
-```
-
-### Compatibility Issues
-
-If you encounter compatibility issues when running the API, try:
-
-1. Using Python 3.9 or 3.10 instead of newer versions
-2. Running the `simulate_endpoint.py` script to test functionality without starting the server
-3. Checking if the dependency versions in `requirements.txt` are compatible with your Python version
-
-## Project Structure <a name="structure"></a>
-
-```
-fiap-machine-learning-tech-challenge-1/
-├── api/                    # REST API application
-│   ├── app/
-│   │   ├── controllers/    # API controllers
-│   │   ├── core/          # Core functionality (auth, database)
-│   │   ├── models/        # Data models
-│   │   ├── schemas/       # Pydantic schemas
-│   │   └── services/      # Business logic
-│   ├── main.py            # FastAPI application entry point
-│   └── requirements.txt   # API dependencies
-├── scripts/               # Web scraping tools
-│   ├── scrapper.py        # Main scraper script
-│   ├── demo_scrapper.py   # Demo version for testing
-│   ├── test_scrapper.py   # Test script
-│   ├── utils.py           # Utility functions
-│   ├── requirements.txt   # Scraper dependencies
-│   ├── run_scrapper.bat   # Windows batch file
-│   └── README.md          # Scraper documentation
-├── data/                  # Output directory for scraped data
-└── README.md              # This file
-```
-
-![image]()
-
-## Troubleshooting
-
-### Import Errors
-
-If you encounter import errors like `Unable to import 'fastapi'` or `Unable to import 'sqlalchemy'`, follow these steps:
-
-1. Make sure you have activated your virtual environment
-2. Run the environment check script to diagnose and fix issues:
-   ```bash
-   python check_environment.py
-   ```
-   This script will check your Python version, installed dependencies, and project structure, and offer to install any missing dependencies.
-
-3. Alternatively, run the installation script to install all dependencies:
-   ```bash
-   python install_dependencies.py
-   ```
-
-4. If the issue persists, try installing the dependencies manually:
-   ```bash
-   pip install fastapi==0.95.2 uvicorn==0.22.0 pydantic==1.10.8 sqlalchemy==1.4.48 beautifulsoup4==4.12.2 requests==2.31.0
-   ```
-
-## Compatibility Issues
-
-This project was developed and tested with Python 3.8+. Some compatibility issues may occur with older versions.
-
-## Licensing, Authors and Acknowledgments<a name="licensing"></a>
