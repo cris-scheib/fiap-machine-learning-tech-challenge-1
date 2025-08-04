@@ -7,6 +7,7 @@ class BookSchema(BaseModel):
     availability: str = Field(..., description="Book availability status")
     rating: str = Field(..., description="Book rating")
     category: str = Field(..., description="Book category")
+    image_url: str = Field(..., description="Book image url")
 
     class Config:
         from_attributes = True
