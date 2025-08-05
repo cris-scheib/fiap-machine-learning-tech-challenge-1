@@ -6,7 +6,7 @@ python-jose==3.4.0
 sqlalchemy==2.0.20
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.19
-yml==0.0.1
+PyYAML==6.0.2
 
 # Scraper dependencies
 pandas==2.3.0
