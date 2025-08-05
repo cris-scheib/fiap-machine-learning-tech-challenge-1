@@ -7,6 +7,7 @@ sqlalchemy==2.0.20
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.19
 PyYAML==6.0.2
+python-dotenv==1.0.0
 
 # Scraper dependencies
 pandas==2.3.0
