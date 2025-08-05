@@ -36,8 +36,10 @@ info:
   version: "1.0.0"
 
 servers:
-  - url: "https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api"
+  - url: "https://fiap-machine-learning-tech-challeng.vercel.app/api"
     description: "Vercel server"
+  - url: "http://127.0.0.1:8000"
+    description: "Desenvolvimento local"
 
 components:
   schemas:
