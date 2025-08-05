@@ -115,7 +115,7 @@ Não se esqueça de gerar e usar o token JWT antes de acessar os endpoints que r
 
 ### ☁️ Via Deploy (produção)
 
-Acesse a versão pública em: https://fiap-machine-learning-tech-challeng-taupe.vercel.app/api/docs 
+Acesse a versão pública em: https://fiap-machine-learning-tech-challeng.vercel.app/api/docs 
 
 Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no navegador.
 
