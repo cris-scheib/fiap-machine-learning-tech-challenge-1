@@ -2,17 +2,18 @@ import logging
 import sys
 import yaml
 from pathlib import Path
+
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[0]
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
+
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions.custom_exceptions import BookNotFoundException, BookNotFoundInRangePriceException, DatabaseException
 from app.routes import router
 from app.core.database import Base, engine
-
-FILE = Path(__file__).resolve()
-ROOT = FILE.parents[0]
-if str(ROOT) not in sys.path:
-    sys.path.append(str(ROOT))
 
 logging.basicConfig(
     level=logging.INFO,

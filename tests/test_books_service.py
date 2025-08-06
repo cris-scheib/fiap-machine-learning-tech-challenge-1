@@ -2,6 +2,7 @@ import os
 import sys
 import pytest
 from fastapi import HTTPException
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
 from app.entities.book_entity import Book
 from app.exceptions.custom_exceptions import BookNotFoundException
 from app.services.books_service import (
@@ -11,8 +12,6 @@ from app.services.books_service import (
     get_top_rated_books,
     get_books_by_price_range
 )
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
 
 
 class TestBooksService:
