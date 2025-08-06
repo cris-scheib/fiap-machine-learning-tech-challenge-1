@@ -128,26 +128,36 @@ Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no 
 
 ### Passos
 
-1. **Clone o repositório**
-   ```bash
+### 1. Clone o repositório
+```bash
    git clone https://github.com/cris-scheib/fiap-machine-learning-tech-challenge-1.git
    cd fiap-machine-learning-tech-challenge-1
-   ```
-2. **Crie e ative um ambiente virtual**
-   ```bash
+```
+### 2. Crie e ative um ambiente virtual
+```bash
    python -m venv venv
    source venv/bin/activate   # Linux/macOS
    venv\Scripts\activate    # Windows
-   ```
-3. **Instale dependências gerais**
-   ```bash
+```
+### 3. Instale dependências gerais
+```bash
    pip install -r requirements.txt
-   ```
-4. **Inicie a API**
-   ```bash
+```
+### 4. Configurar variáveis de ambiente
+ 
+Crie um arquivo **.env** na raiz do projeto com as seguintes variáveis:
+```dotenv
+SECRET_KEY=minha_super_chave_secreta_123456
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+REFRESH_TOKEN_EXPIRE_DAYS=1
+```
+   
+###  5. Inicie a API
+```bash
    cd api
    uvicorn main:app --reload
-   ```
+```
 
 A API estará disponível em `http://127.0.0.1:8000`. 
 
@@ -156,22 +166,21 @@ e `http://127.0.0.1:8000/redoc` (ReDoc).
 
 ### Opcional: Executar o Web Scraping
 
-Utilize este processo apenas se desejar substituir os dados existentes por uma nova coleta.
+Utilize este processo apenas se desejar substituir os dados existentes por uma nova coleta, ou se você limpou o banco.
 
 > **Atenção:** O processo é demorado (entre 30 minutos a 1 hora) e requer um usuário existente no banco de dados 
 > para associar os livros coletados.
 
-**Fluxo de trabalho para o scraping:**
+### Fluxo de trabalho para o scraping:
 
-1.  **Certifique-se de que a API NÃO esteja rodando** (pressione `Ctrl+C` no terminal onde a API está ativa).
-2.  **Verifique se um usuário existe.** O `test_user` já está no banco de dados inicial. Se você limpou o banco, inicie a API primeiro, crie um usuário pelo endpoint `/users` e pare a API novamente.
-3.  **Execute o script de scraping.** No diretório raiz do projeto, execute:
-    ```bash
-    cd api
-    # Certifique-se de estar no diretório 'api'
-    python -m app.services.scrapper.scrapper_service
-    ```
-4.  **Pronto!** Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
+### 1. Certifique-se de que a API NÃO esteja rodando** (pressione `Ctrl+C` no terminal onde a API está ativa).
+### 2. Execute o script de scraping. No diretório raiz do projeto, execute:
+```bash
+   cd api
+   # Certifique-se de estar no diretório 'api'
+   python -m app.services.scrapper.scrapper_service
+```
+### 3. Pronto! Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
 
 
 ## Endpoints
@@ -315,7 +324,6 @@ retorna todos os livros. **Requer autenticação.**
       "category": "Travel",
       "image_url": "https://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg"
     }
-    // Outros 9 livros
   ]
   ```  
 
@@ -336,7 +344,6 @@ retorna todos os livros. **Requer autenticação.**
       "category": "Travel",
       "image_url": "https://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg"
     }
-    // Outros 9 livros
   ]
   ``` 
   
@@ -346,7 +353,7 @@ retorna todos os livros. **Requer autenticação.**
 - **Descrição:** Retorna todas as categorias existentes. **Requer autenticação.**
 - **Resposta (200):** Lista de todas as categorias
   ```json
-  ["Travel", "Mystery", "Historical Fiction", ...]
+  ["Travel", "Mystery", "Historical Fiction"]
   ```
 
 ---
@@ -380,7 +387,6 @@ incluindo contagem de livros e preço médio. **Requer autenticação.**
       "total_books": 19,
       "average_price": 47.66
     }
-    // ... outras estatísticas de categoria
   ]
   ```
   
