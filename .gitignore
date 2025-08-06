@@ -1,35 +1,35 @@
-# Virtual environments
+# Ambientes virtuais
 **/venv/
 **/ENV/
 **/env/
 
-# Python cache
+# Cache do Python
 **/__pycache__/
 **/*.py[cod]
 **/*.pyo
 **/*.pyd
 
-# Log files and local database
+# Arquivos de log e banco local
 **/*.log
 **/*.sqlite3
 
-# IDE and editor configurations
+# Configurações de IDEs e editores
 **/.vscode/
 **/.idea/
 **/*.swp
 
-# System files
+# Arquivos do sistema
 **/.DS_Store
 **/Thumbs.db
 
-# Uvicorn files
+# Arquivos do Uvicorn
 **/*.pid
 
 # Pip
 **/pip-log.txt
 **/pip-delete-this-directory.txt
 
-# Tests
+# Testes
 **/htmlcov/
 **/.tox/
 **/.coverage
@@ -45,3 +45,6 @@
 .vercel
 
 .env
+test.db
+htmlcov
+.coverage
