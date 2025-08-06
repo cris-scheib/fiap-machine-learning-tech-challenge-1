@@ -1,10 +1,7 @@
 import os
 import sys
-from unittest.mock import Mock, patch
 import pytest
 from fastapi import HTTPException
-from sqlalchemy.exc import SQLAlchemyError
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
 from app.entities.book_entity import Book
 from app.exceptions.BookNotFoundException import BookNotFoundException
 from app.services.books_service import (
@@ -14,6 +11,9 @@ from app.services.books_service import (
     get_top_rated_books,
     get_books_by_price_range
 )
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
+
 
 class TestBooksService:
     """Testes para o serviço de livros."""

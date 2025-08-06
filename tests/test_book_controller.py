@@ -1,9 +1,9 @@
 import os
 import sys
-import pytest
-from fastapi import HTTPException
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
 from app.core.auth import create_access_token
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
+
 
 class TestBookController:
     """Testes para o controlador de livros."""

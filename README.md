@@ -12,10 +12,11 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 - [Descrição](#descrição)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Arquitetura](#arquitetura)
+- [Banco de Dados](#banco-de-dados)
 - [Como Utilizar](#como-utilizar)
-- [Testes](#testes)
 - [Endpoints](#endpoints)
-- [Licença, Autores e Agradecimentos](#licença-autores)
+- [Testes Unitários e Integração](#testes-unitários-e-integração)
+- [Licença e Autores](#licença-e-autores)
 
 -----------------------------------
 
@@ -25,10 +26,10 @@ O objetivo deste projeto é expor uma **API RESTful** para facilitar o acesso ao
 
 A API fornece endpoints para:
 
-- Cadastro e autenticação de usuários (OAuth2 Password Grant).
-- Consulta de informações de livros: listagem, busca por ID, busca por título/categoria.
+- Cadastro e autenticação de usuários via JWT (Bearer Token).
+- Consulta de informações de livros: listagem, busca por ID, busca por título/categoria, mais avaliados e por média de preços.
 - Estatísticas gerais e por categoria.
-- Ação manual de scraping para atualização dos dados.
+- Trigger de scraping via endpoint para atualização dos dados.
 - Health check da API.
 
 Os dados disponíveis envolvem informações sobre:
@@ -73,6 +74,12 @@ fiap-machine-learning-tech-challenge-1/
 │       ├── entities/            # Contém as entidades do banco (Modelos SQLAlchemy)
 │       ├── schemas/             # Schemas Pydantic (request/response)
 │       └── services/            # Lógica de negócio e componente de scraping
+├──tests/
+│   ├── conftest.py              # Configurações e fixtures compartilhadas
+│   ├── test_auth.py             # Testes de autenticação (unitários)
+│   ├── test_book_controller.py  # Testes dos endpoints da API (integração)
+│   └── test_books_service.py    # Testes dos serviços de livros (misto)
+├── pytest.ini                   # Configurações globais para rodar o Pytest
 ├── requirements.txt             # Dependências gerais do projeto
 ├── runtime.txt                  # Versão do runtime (deploy)
 └── vercel.json                  # Configurações de deploy
@@ -80,27 +87,33 @@ fiap-machine-learning-tech-challenge-1/
 
 ### Descrição das camadas:
 
-**controllers**: Define os pontos de entrada da API (endpoints) e realiza roteamento.
+**Controllers**: Define os pontos de entrada da API (endpoints) e realiza roteamento.
 
-**services**: Implementa a lógica de negócio, orquestrando operações de scraping e acesso a dados via models.
+**Services**: Implementa a lógica de negócio, orquestrando operações de scraping e acesso a dados via models.
 
-**entities**: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
+**Entities**: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
 
-**schemas**: Contém os Pydantic models para validação e serialização de requisições e respostas.
+**Schemas**: Contém os Pydantic models para validação e serialização de requisições e respostas.
 
-**core**: Agrupa configurações centrais, como autenticação JWT, inicialização de sessão de banco de dados e configurações gerais.
+**Core**: Agrupa configurações centrais, como autenticação JWT, inicialização de sessão de banco de dados e configurações gerais.
 
 Essa separação melhora a modularidade, e permite evoluir cada camada independentemente.
+
+-----------------------------------
+
+## Banco de Dados
+A aplicação utiliza um banco de dados SQLite para armazenar os dados extraídos (também são armazenados em um csv). 
+O banco é inicializado automaticamente ao iniciar a aplicação ou realizar o scrapping, criando as tabelas necessárias.
 
 -----------------------------------
 
 ## Como Utilizar
 
 Você pode usar a API de duas formas: **localmente** no seu ambiente de desenvolvimento ou 
-consumindo a **versão já deployada**.
+utilizando a **versão já deployada**.
 
-Para sua conveniência, o repositório já inclui um banco de dados (`.sqlite`) com cerca de mil livros e 
-um usuário de testes, além de um arquivo (`.csv`). Permitindo que você explore a API imediatamente.
+Para sua conveniência, o repositório já inclui um banco de dados SQlite (`data.db`) com cerca de mil livros e 
+um usuário de testes, além de um arquivo (`books_data_20250729_232318.csv`). Permitindo que você explore a API imediatamente.
 
 
 **Autenticação (válido para ambos os modos)**
@@ -114,12 +127,6 @@ Usuário de teste:
 
 Não se esqueça de gerar e usar o token JWT antes de acessar os endpoints que requerem autenticação.
 
-### ☁️ Via Deploy (produção)
-
-Acesse a versão pública em: https://fiap-machine-learning-tech-challeng.vercel.app/api/docs 
-
-Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no navegador.
-
 ### 🏠 Execução Local
 
 ### Pré-requisitos
@@ -129,116 +136,77 @@ Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no 
 
 ### Passos
 
-1. **Clone o repositório**
-   ```bash
+### 1. Clone o repositório
+```bash
    git clone https://github.com/cris-scheib/fiap-machine-learning-tech-challenge-1.git
    cd fiap-machine-learning-tech-challenge-1
-   ```
-2. **Crie e ative um ambiente virtual**
-   ```bash
+```
+### 2. Crie e ative um ambiente virtual
+```bash
    python -m venv venv
    source venv/bin/activate   # Linux/macOS
    venv\Scripts\activate    # Windows
-   ```
-3. **Instale dependências gerais**
-   ```bash
+```
+### 3. Instale dependências gerais
+```bash
    pip install -r requirements.txt
-   ```
-4. **Inicie a API**
-   ```bash
+```
+### 4. Configurar variáveis de ambiente
+ 
+Crie um arquivo **.env** na raiz do projeto com as seguintes variáveis:
+```dotenv
+SECRET_KEY=minha_super_chave_secreta_123456
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+REFRESH_TOKEN_EXPIRE_DAYS=1
+```
+   
+###  5. Inicie a API
+```bash
    cd api
    uvicorn main:app --reload
-   ```
+```
 
 A API estará disponível em `http://127.0.0.1:8000`. 
 
 A documentação interativa é acessível em `http://127.0.0.1:8000/docs` (Swagger UI) 
 e `http://127.0.0.1:8000/redoc` (ReDoc).
 
+> **Atenção:** No Swagger selecione o servidor **Local**: http://127.0.0.1:8000 - Execução local.
+
 ### Opcional: Executar o Web Scraping
 
-Utilize este processo apenas se desejar substituir os dados existentes por uma nova coleta.
+Utilize este processo apenas se desejar substituir os dados existentes por uma nova coleta, ou se você limpou o banco.
 
-> **Atenção:** O processo é demorado (entre 30 minutos a 1 hora) e requer um usuário existente no banco de dados 
-> para associar os livros coletados.
+> **Atenção:** O processo é demorado (entre 30 minutos a 1 hora) para extrair todos os livros.
+> Caso queira executar de forma mais rápida, apenas para ver o funcionamento, limite a quantidade de dados extraídos:
+> - Entre na classe scrapper_service.py
+> - Na linha 61, no retorno category_links[1:] 
+> - Modifique o intervalo ex: category_links[1:2]
 
-**Fluxo de trabalho para o scraping:**
+### Fluxo de trabalho para o scraping:
 
-1.  **Certifique-se de que a API NÃO esteja rodando** (pressione `Ctrl+C` no terminal onde a API está ativa).
-2.  **Verifique se um usuário existe.** O `test_user` já está no banco de dados inicial. Se você limpou o banco, inicie a API primeiro, crie um usuário pelo endpoint `/users` e pare a API novamente.
-3.  **Execute o script de scraping.** No diretório raiz do projeto, execute:
-    ```bash
-    cd api
-    # Certifique-se de estar no diretório 'api'
-    python -m app.services.scrapper.scrapper_service
-    ```
-4.  **Pronto!** Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
-
------------------------------------
-
-## Testes
-
-O projeto inclui uma suíte abrangente de testes que combina **testes unitários** e **testes de integração** para garantir a qualidade e confiabilidade do código.
-
-### 📊 Cobertura Atual
-- **40 testes** implementados
-- **54% de cobertura** de código
-
-### 🧪 Tipos de Teste
-
-**Testes Unitários:**
-- Funções de autenticação e JWT
-- Lógica de negócio isolada
-- Utilitários e helpers
-
-**Testes de Integração:**
-- Endpoints da API completos
-- Interação com banco de dados
-- Fluxos de autenticação
-- Serialização de dados
-
-### 🚀 Executando os Testes
-
-**Pré-requisitos:**
-- Ambiente virtual ativado
-- Dependências instaladas (`pip install -r requirements.txt`)
-
-**Comandos disponíveis:**
-
+### 1. Certifique-se de que a API NÃO esteja em execução (pressione `Ctrl+C` no terminal onde a API está ativa).
+### 2. Execute o script de scraping. No diretório raiz do projeto, execute:
 ```bash
-# Executar todos os testes
-python -m pytest tests/
-
-# Executar com relatório de cobertura
-python -m pytest tests/ --cov=api/app --cov-report=term-missing --cov-report=html:htmlcov
-
-# Executar testes específicos
-python -m pytest tests/test_auth.py
-python -m pytest tests/test_book_controller.py
-python -m pytest tests/test_books_service.py
-
-# Executar com saída detalhada
-python -m pytest tests/ -v
+   cd api
+   # Certifique-se de estar no diretório 'api'
+   python -m app.services.scrapper.scrapper_service
 ```
+### 3. Pronto! Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
 
-**Relatório HTML de Cobertura:**
-Após executar os testes com `--cov-report=html:htmlcov`, abra o arquivo `htmlcov/index.html` no navegador para visualizar o relatório detalhado de cobertura.
+Para saber mais detalhes técnicos do scraping consulte a sua documentação: [Web Scraping](https://github.com/cris-scheib/fiap-machine-learning-tech-challenge-1/blob/main/api/app/services/scrapper/README.md)
 
-### 📁 Estrutura dos Testes
+### ☁️ Via Deploy (produção)
 
-```
-tests/
-├── conftest.py              # Configurações e fixtures compartilhadas
-├── test_auth.py             # Testes de autenticação (unitários)
-├── test_book_controller.py  # Testes dos endpoints da API (integração)
-└── test_books_service.py    # Testes dos serviços de livros (misto)
-```
+A nossa API está hospedada na Vercel que é uma plataforma de nuvem projetada 
+para facilitar o desenvolvimento e a implantação de aplicações web
 
-### 🔧 Fixtures Disponíveis
-- `db_session`: Sessão de banco de dados para testes
-- `client`: Cliente de teste da API FastAPI
-- `sample_user`: Usuário de exemplo para testes
-- `multiple_books`: Conjunto de livros para testes
+Acesse a versão em: https://fiap-machine-learning-tech-challeng.vercel.app/api/docs 
+
+Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no navegador.
+
+> **Atenção:** No Swagger selecione o servidor **Produção**: https://fiap-machine-learning-tech-challeng.vercel.app - Vercel server.
 
 -----------------------------------
 
@@ -271,7 +239,7 @@ tests/
   }
   ```
 
----
+-----------------------------------
 
 ### `POST /auth/login`
 - **Descrição:** Realiza login e gera um token de acesso JWT para um usuário, com base em suas credenciais.
@@ -294,6 +262,7 @@ tests/
   ```json
   {
     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "token_type": "bearer"
   }
   ```
@@ -307,7 +276,7 @@ tests/
   { "status": "ok" }
   ```
 
----
+-----------------------------------
 
 ### `GET /api/v1/books`
 - **Descrição:** Lista todos os livros carregados. **Requer autenticação.**
@@ -383,7 +352,6 @@ retorna todos os livros. **Requer autenticação.**
       "category": "Travel",
       "image_url": "https://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg"
     }
-    // Outros 9 livros
   ]
   ```  
 
@@ -404,7 +372,6 @@ retorna todos os livros. **Requer autenticação.**
       "category": "Travel",
       "image_url": "https://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg"
     }
-    // Outros 9 livros
   ]
   ``` 
   
@@ -414,10 +381,10 @@ retorna todos os livros. **Requer autenticação.**
 - **Descrição:** Retorna todas as categorias existentes. **Requer autenticação.**
 - **Resposta (200):** Lista de todas as categorias
   ```json
-  ["Travel", "Mystery", "Historical Fiction", ...]
+  ["Travel", "Mystery", "Historical Fiction"]
   ```
 
----
+-----------------------------------
 
 ### `GET /api/v1/stats/overview`
 - **Descrição:** Retorna estatísticas gerais, como número total de livros, preço médio 
@@ -448,11 +415,10 @@ incluindo contagem de livros e preço médio. **Requer autenticação.**
       "total_books": 19,
       "average_price": 47.66
     }
-    // ... outras estatísticas de categoria
   ]
   ```
   
----
+-----------------------------------
 
 ### `POST /api/v1/scraping/trigger`
 - **Descrição:** Inicia o processo de web scraping em segundo plano para atualizar a 
@@ -460,9 +426,61 @@ base de dados de livros. **Requer autenticação.**
 - **Resposta (202):** A API retornará um status 202 com uma mensagem para indicar que a tarefa foi iniciada com sucesso. 
 Não há corpo na resposta.
   
----
+-----------------------------------
 
-## Licença, Autores
+## Testes Unitários e Integração
+
+O projeto inclui uma suíte abrangente de testes utilizando pytest que combina **testes unitários** e **testes de integração** para garantir a qualidade e confiabilidade do código.
+
+### 📊 Cobertura Atual
+- **40 testes** implementados
+- **54% de cobertura** de código
+
+### 🧪 Tipos de Teste
+
+**Testes Unitários:**
+- Funções de autenticação e JWT
+- Lógica de negócio isolada
+- Utilitários e helpers
+
+**Testes de Integração:**
+- Endpoints da API completos
+- Interação com banco de dados
+- Fluxos de autenticação
+- Serialização de dados
+
+### 🚀 Executando os Testes
+
+**Comandos disponíveis:**
+
+```bash
+# Executar todos os testes
+python -m pytest tests/
+
+# Executar com relatório de cobertura
+python -m pytest tests/ --cov=api/app --cov-report=term-missing --cov-report=html:htmlcov
+
+# Executar testes específicos
+python -m pytest tests/test_auth.py
+python -m pytest tests/test_book_controller.py
+python -m pytest tests/test_books_service.py
+
+# Executar com saída detalhada
+python -m pytest tests/ -v
+```
+
+**Relatório HTML de Cobertura:**
+Após executar os testes com `--cov-report=html:htmlcov`, abra o arquivo `htmlcov/index.html` no navegador para visualizar o relatório detalhado de cobertura.
+
+### 🔧 Fixtures Disponíveis
+- `db_session`: Sessão de banco de dados para testes
+- `client`: Cliente de teste da API FastAPI
+- `sample_user`: Usuário de exemplo para testes
+- `multiple_books`: Conjunto de livros para testes
+
+-----------------------------------
+
+## Licença e Autores
 
 ### 🧑‍💻 Desenvolvido por
 
