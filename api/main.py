@@ -2,18 +2,20 @@ import logging
 import sys
 import yaml
 from pathlib import Path
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.exc import SQLAlchemyError
-from app.exceptions.BookNotFoundException import BookNotFoundException
-from app.routes import router
-from app.core.database import Base, engine
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
+
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.exceptions.BookNotFoundException import BookNotFoundException
+from app.routes import router
+from app.core.database import Base, engine
 
 logging.basicConfig(
     level=logging.INFO,

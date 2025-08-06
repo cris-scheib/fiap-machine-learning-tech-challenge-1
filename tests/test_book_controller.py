@@ -1,8 +1,7 @@
 import os
 import sys
-from app.core.auth import create_access_token
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
+from app.core.auth import create_access_token
 
 
 class TestBookController:
