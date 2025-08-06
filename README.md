@@ -13,8 +13,8 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Arquitetura](#arquitetura)
 - [Como Utilizar](#como-utilizar)
-- [Testes](#testes)
 - [Endpoints](#endpoints)
+- [Testes Unitários e Integração](#testes-unitários-e-integração)
 - [Licença, Autores e Agradecimentos](#licença-autores)
 
 -----------------------------------
@@ -73,6 +73,12 @@ fiap-machine-learning-tech-challenge-1/
 │       ├── entities/            # Contém as entidades do banco (Modelos SQLAlchemy)
 │       ├── schemas/             # Schemas Pydantic (request/response)
 │       └── services/            # Lógica de negócio e componente de scraping
+├──tests/
+│   ├── conftest.py              # Configurações e fixtures compartilhadas
+│   ├── test_auth.py             # Testes de autenticação (unitários)
+│   ├── test_book_controller.py  # Testes dos endpoints da API (integração)
+│   └── test_books_service.py    # Testes dos serviços de livros (misto)
+├── pytest.ini                   # Configurações globais para rodar o Pytest
 ├── requirements.txt             # Dependências gerais do projeto
 ├── runtime.txt                  # Versão do runtime (deploy)
 └── vercel.json                  # Configurações de deploy
@@ -80,15 +86,15 @@ fiap-machine-learning-tech-challenge-1/
 
 ### Descrição das camadas:
 
-**controllers**: Define os pontos de entrada da API (endpoints) e realiza roteamento.
+**Controllers**: Define os pontos de entrada da API (endpoints) e realiza roteamento.
 
-**services**: Implementa a lógica de negócio, orquestrando operações de scraping e acesso a dados via models.
+**Services**: Implementa a lógica de negócio, orquestrando operações de scraping e acesso a dados via models.
 
-**entities**: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
+**Entities**: Representa o domínio de dados, definindo entidades e mapeamentos com SQLAlchemy.
 
-**schemas**: Contém os Pydantic models para validação e serialização de requisições e respostas.
+**Schemas**: Contém os Pydantic models para validação e serialização de requisições e respostas.
 
-**core**: Agrupa configurações centrais, como autenticação JWT, inicialização de sessão de banco de dados e configurações gerais.
+**Core**: Agrupa configurações centrais, como autenticação JWT, inicialização de sessão de banco de dados e configurações gerais.
 
 Essa separação melhora a modularidade, e permite evoluir cada camada independentemente.
 
@@ -97,7 +103,7 @@ Essa separação melhora a modularidade, e permite evoluir cada camada independe
 ## Como Utilizar
 
 Você pode usar a API de duas formas: **localmente** no seu ambiente de desenvolvimento ou 
-consumindo a **versão já deployada**.
+utilizando a **versão já deployada**.
 
 Para sua conveniência, o repositório já inclui um banco de dados (`.sqlite`) com cerca de mil livros e 
 um usuário de testes, além de um arquivo (`.csv`). Permitindo que você explore a API imediatamente.
@@ -185,72 +191,6 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
 
 -----------------------------------
 
-## Testes
-
-O projeto inclui uma suíte abrangente de testes que combina **testes unitários** e **testes de integração** para garantir a qualidade e confiabilidade do código.
-
-### 📊 Cobertura Atual
-- **40 testes** implementados
-- **54% de cobertura** de código
-
-### 🧪 Tipos de Teste
-
-**Testes Unitários:**
-- Funções de autenticação e JWT
-- Lógica de negócio isolada
-- Utilitários e helpers
-
-**Testes de Integração:**
-- Endpoints da API completos
-- Interação com banco de dados
-- Fluxos de autenticação
-- Serialização de dados
-
-### 🚀 Executando os Testes
-
-**Pré-requisitos:**
-- Ambiente virtual ativado
-- Dependências instaladas (`pip install -r requirements.txt`)
-
-**Comandos disponíveis:**
-
-```bash
-# Executar todos os testes
-python -m pytest tests/
-
-# Executar com relatório de cobertura
-python -m pytest tests/ --cov=api/app --cov-report=term-missing --cov-report=html:htmlcov
-
-# Executar testes específicos
-python -m pytest tests/test_auth.py
-python -m pytest tests/test_book_controller.py
-python -m pytest tests/test_books_service.py
-
-# Executar com saída detalhada
-python -m pytest tests/ -v
-```
-
-**Relatório HTML de Cobertura:**
-Após executar os testes com `--cov-report=html:htmlcov`, abra o arquivo `htmlcov/index.html` no navegador para visualizar o relatório detalhado de cobertura.
-
-### 📁 Estrutura dos Testes
-
-```
-tests/
-├── conftest.py              # Configurações e fixtures compartilhadas
-├── test_auth.py             # Testes de autenticação (unitários)
-├── test_book_controller.py  # Testes dos endpoints da API (integração)
-└── test_books_service.py    # Testes dos serviços de livros (misto)
-```
-
-### 🔧 Fixtures Disponíveis
-- `db_session`: Sessão de banco de dados para testes
-- `client`: Cliente de teste da API FastAPI
-- `sample_user`: Usuário de exemplo para testes
-- `multiple_books`: Conjunto de livros para testes
-
------------------------------------
-
 ## Endpoints
 
 ### `POST /users/`
@@ -280,7 +220,7 @@ tests/
   }
   ```
 
----
+-----------------------------------
 
 ### `POST /auth/login`
 - **Descrição:** Realiza login e gera um token de acesso JWT para um usuário, com base em suas credenciais.
@@ -316,7 +256,7 @@ tests/
   { "status": "ok" }
   ```
 
----
+-----------------------------------
 
 ### `GET /api/v1/books`
 - **Descrição:** Lista todos os livros carregados. **Requer autenticação.**
@@ -424,7 +364,7 @@ retorna todos os livros. **Requer autenticação.**
   ["Travel", "Mystery", "Historical Fiction"]
   ```
 
----
+-----------------------------------
 
 ### `GET /api/v1/stats/overview`
 - **Descrição:** Retorna estatísticas gerais, como número total de livros, preço médio 
@@ -458,7 +398,7 @@ incluindo contagem de livros e preço médio. **Requer autenticação.**
   ]
   ```
   
----
+-----------------------------------
 
 ### `POST /api/v1/scraping/trigger`
 - **Descrição:** Inicia o processo de web scraping em segundo plano para atualizar a 
@@ -466,7 +406,59 @@ base de dados de livros. **Requer autenticação.**
 - **Resposta (202):** A API retornará um status 202 com uma mensagem para indicar que a tarefa foi iniciada com sucesso. 
 Não há corpo na resposta.
   
----
+-----------------------------------
+
+## Testes Unitários e Integração
+
+O projeto inclui uma suíte abrangente de testes que combina **testes unitários** e **testes de integração** para garantir a qualidade e confiabilidade do código.
+
+### 📊 Cobertura Atual
+- **40 testes** implementados
+- **54% de cobertura** de código
+
+### 🧪 Tipos de Teste
+
+**Testes Unitários:**
+- Funções de autenticação e JWT
+- Lógica de negócio isolada
+- Utilitários e helpers
+
+**Testes de Integração:**
+- Endpoints da API completos
+- Interação com banco de dados
+- Fluxos de autenticação
+- Serialização de dados
+
+### 🚀 Executando os Testes
+
+**Comandos disponíveis:**
+
+```bash
+# Executar todos os testes
+python -m pytest tests/
+
+# Executar com relatório de cobertura
+python -m pytest tests/ --cov=api/app --cov-report=term-missing --cov-report=html:htmlcov
+
+# Executar testes específicos
+python -m pytest tests/test_auth.py
+python -m pytest tests/test_book_controller.py
+python -m pytest tests/test_books_service.py
+
+# Executar com saída detalhada
+python -m pytest tests/ -v
+```
+
+**Relatório HTML de Cobertura:**
+Após executar os testes com `--cov-report=html:htmlcov`, abra o arquivo `htmlcov/index.html` no navegador para visualizar o relatório detalhado de cobertura.
+
+### 🔧 Fixtures Disponíveis
+- `db_session`: Sessão de banco de dados para testes
+- `client`: Cliente de teste da API FastAPI
+- `sample_user`: Usuário de exemplo para testes
+- `multiple_books`: Conjunto de livros para testes
+
+-----------------------------------
 
 ## Licença, Autores
 
