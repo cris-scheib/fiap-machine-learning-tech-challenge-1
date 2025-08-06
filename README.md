@@ -195,6 +195,8 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
 ```
 ### 3. Pronto! Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
 
+Para saber mais detalhes técnicos do scraping consulte a sua documentação: [Web Scraping Text Book](https://github.com/cris-scheib/fiap-machine-learning-tech-challenge-1/blob/main/api/app/services/scrapper/README.md)
+
 ### ☁️ Via Deploy (produção)
 
 A nossa API está hospedada na Vercel que é uma plataforma de nuvem projetada 
