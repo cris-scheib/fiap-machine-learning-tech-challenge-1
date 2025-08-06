@@ -5,7 +5,7 @@ from fastapi import HTTPException
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
 from app.entities.book_entity import Book
 from sqlalchemy.exc import SQLAlchemyError
-from app.exceptions.custom_exceptions import BookNotFoundException, DatabaseException
+from app.exceptions.custom_exceptions import BookNotFoundException
 from app.services.books_service import (
     get_all_books,
     get_books_by_title_and_category,
