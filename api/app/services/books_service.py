@@ -4,19 +4,12 @@ from sqlalchemy import cast, Float
 from app.entities.book_entity import Book
 from fastapi import HTTPException, status
 from typing import List, Optional
-from app.exceptions.BookNotFoundException import BookNotFoundException
+from app.exceptions.custom_exceptions import BookNotFoundException
 
 
 def get_all_books(db: Session) -> List[Book]:
     try:
         books = db.query(Book).all()
-
-        if not books:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No books found in the database."
-            )
-
         return books
 
     except SQLAlchemyError as e:
@@ -36,12 +29,6 @@ def get_books_by_title_and_category(db: Session, title: str = None, category: st
             query = query.filter(Book.category.ilike(f"%{category}%"))
 
         books = query.all()
-        if not books:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No books found in the database."
-            )
-
         return books
 
     except SQLAlchemyError as e:
@@ -57,7 +44,6 @@ def get_book_by_id(db: Session, book_id: int) -> Optional[Book]:
 
         if not book:
             raise BookNotFoundException(book_id)
-
         return book
 
     except SQLAlchemyError as e:
@@ -95,9 +81,6 @@ def get_books_by_price_range(db: Session, min_price: float, max_price: float) ->
             cast(Book.price, Float) >= min_price,
             cast(Book.price, Float) <= max_price
         ).all()
-        if not books:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="No books found in the specified price range.")
         return books
     except SQLAlchemyError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

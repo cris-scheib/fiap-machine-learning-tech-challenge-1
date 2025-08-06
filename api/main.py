@@ -12,8 +12,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
-
-from app.exceptions.BookNotFoundException import BookNotFoundException
+from app.exceptions.custom_exceptions import BookNotFoundException, BookNotFoundInRangePriceException
 from app.routes import router
 from app.core.database import Base, engine
 
@@ -68,15 +67,8 @@ app.include_router(router)
 logger.info("Routes registered successfully")
 
 
-@app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Internal server error."}
-    )
-
 @app.exception_handler(SQLAlchemyError)
-async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
+async def database_exception_handler(request: Request, exc: SQLAlchemyError):
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "Error accessing the database."}
@@ -87,7 +79,15 @@ async def book_exception_handler(request: Request, exc: BookNotFoundException):
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={
-            "detail": f"Book with ID {exc.book_id} not found",
-            "book_id": exc.book_id
+            "detail": exc.message,
+        }
+    )
+
+@app.exception_handler(BookNotFoundInRangePriceException)
+async def book_exception_handler(request: Request, exc: BookNotFoundInRangePriceException):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={
+            "detail": exc.message,
         }
     )

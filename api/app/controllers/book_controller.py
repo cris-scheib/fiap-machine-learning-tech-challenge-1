@@ -5,7 +5,9 @@ from app.core.database import get_db
 from app.schemas.book_schema import BookSchema
 from app.services.books_service import get_all_books, get_books_by_title_and_category, get_book_by_id, get_top_rated_books, get_books_by_price_range
 from app.core.auth import get_current_user
+from app.exceptions.custom_exceptions import BookNotFoundInRangePriceException
 import logging
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter(
@@ -57,6 +59,8 @@ async def books_by_price_range(
         db: Session = Depends(get_db)
 ) -> List[BookSchema]:
     logger.info(f"Endpoint /books/price-range accessed with min={min}, max={max}")
+    if min > max:
+        raise BookNotFoundInRangePriceException
     return get_books_by_price_range(db, min, max)
 
 
