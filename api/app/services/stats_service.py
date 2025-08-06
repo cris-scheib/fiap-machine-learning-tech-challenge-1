@@ -2,7 +2,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy import func, Float
 from app.entities.book_entity import Book
-from app.exceptions.custom_exceptions import DatabaseException
+from fastapi import HTTPException, status
 from typing import List, Dict
 
 
@@ -20,7 +20,10 @@ def get_overview_stats(db: Session) -> Dict:
 
 
     except SQLAlchemyError as e:
-        raise DatabaseException(original_error=e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error accessing the database: {str(e)}"
+        )
 
 
 def get_category_stats(db: Session) -> List[Dict]:
@@ -43,4 +46,7 @@ def get_category_stats(db: Session) -> List[Dict]:
 
 
     except SQLAlchemyError as e:
-        raise DatabaseException(original_error=e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error accessing the database: {str(e)}"
+        )

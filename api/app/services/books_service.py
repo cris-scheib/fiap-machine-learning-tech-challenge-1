@@ -4,7 +4,7 @@ from sqlalchemy import cast, Float
 from app.entities.book_entity import Book
 from fastapi import HTTPException, status
 from typing import List, Optional
-from app.exceptions.custom_exceptions import BookNotFoundException, DatabaseException
+from app.exceptions.custom_exceptions import BookNotFoundException
 
 
 def get_all_books(db: Session) -> List[Book]:
@@ -13,7 +13,10 @@ def get_all_books(db: Session) -> List[Book]:
         return books
 
     except SQLAlchemyError as e:
-        raise DatabaseException(original_error=e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error accessing the database: {str(e)}"
+        )
 
 
 def get_books_by_title_and_category(db: Session, title: str = None, category: str = None) -> List[Book]:
@@ -41,7 +44,6 @@ def get_book_by_id(db: Session, book_id: int) -> Optional[Book]:
 
         if not book:
             raise BookNotFoundException(book_id)
-
         return book
 
     except SQLAlchemyError as e:

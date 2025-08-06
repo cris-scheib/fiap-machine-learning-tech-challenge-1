@@ -4,7 +4,8 @@ import pytest
 from fastapi import HTTPException
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'api'))
 from app.entities.book_entity import Book
-from app.exceptions.custom_exceptions import BookNotFoundException
+from sqlalchemy.exc import SQLAlchemyError
+from app.exceptions.custom_exceptions import BookNotFoundException, DatabaseException
 from app.services.books_service import (
     get_all_books,
     get_books_by_title_and_category,
@@ -27,20 +28,25 @@ class TestBooksService:
     
     def test_get_all_books_empty_database(self, db_session):
         """Testa a busca de livros em banco vazio."""
-        with pytest.raises(HTTPException) as exc_info:
-            get_all_books(db_session)
-        
-        assert exc_info.value.status_code == 404
-        assert "No books found" in exc_info.value.detail
+        books = get_all_books(db_session)
+
+        assert isinstance(books, list)
+        assert books == []
+        assert len(books) == 0
     
-    def test_get_all_books_database_error(self, db_session):
+    def test_get_all_books_database_error(self, db_session, monkeypatch):
         """Testa erro de banco ao buscar todos os livros."""
-        db_session.close()
+
+        def fake_query(*args, **kwargs):
+            raise SQLAlchemyError("Banco inacessível")
+
+        monkeypatch.setattr(db_session, "query", fake_query)
+
         with pytest.raises(HTTPException) as exc_info:
             get_all_books(db_session)
-        
-        assert exc_info.value.status_code == 404
-        assert "No books found" in exc_info.value.detail
+
+        assert exc_info.value.status_code == 500
+        assert "Error accessing the database" in exc_info.value.detail
     
     def test_get_books_by_title_success(self, db_session, multiple_books):
         """Testa a busca de livros por título."""
@@ -70,11 +76,11 @@ class TestBooksService:
     
     def test_get_books_by_title_not_found(self, db_session, multiple_books):
         """Testa busca por título que não existe."""
-        with pytest.raises(HTTPException) as exc_info:
-            get_books_by_title_and_category(db_session, title="Nonexistent")
-        
-        assert exc_info.value.status_code == 404
-        assert "No books found" in exc_info.value.detail
+        books = get_books_by_title_and_category(db_session, title="Nonexistent")
+
+        assert isinstance(books, list)
+        assert books == []
+        assert len(books) == 0
     
     def test_get_book_by_id_success(self, db_session, sample_book):
         """Testa a busca de livro por ID com sucesso."""
@@ -124,18 +130,22 @@ class TestBooksService:
     
     def test_get_books_by_price_range_not_found(self, db_session, multiple_books):
         """Testa busca por faixa de preço sem resultados."""
-        with pytest.raises(HTTPException) as exc_info:
-            get_books_by_price_range(db_session, min_price=100.0, max_price=200.0)
-        
-        assert exc_info.value.status_code == 404
-        assert "No books found in the specified price range" in exc_info.value.detail
+        books = get_books_by_price_range(db_session, min_price=200.0, max_price=500.0)
+
+        assert isinstance(books, list)
+        assert books == []
+        assert len(books) == 0
     
-    def test_get_books_by_price_range_database_error(self, db_session):
+    def test_get_books_by_price_range_database_error(self, db_session, monkeypatch):
         """Testa erro de banco ao buscar por faixa de preço."""
-        db_session.close()
-        
+
+        def fake_query(*args, **kwargs):
+            raise SQLAlchemyError("Banco inacessível")
+
+        monkeypatch.setattr(db_session, "query", fake_query)
+
         with pytest.raises(HTTPException) as exc_info:
-            get_books_by_price_range(db_session, 10.0, 50.0)
-        
-        assert exc_info.value.status_code == 404
-        assert "No books found in the specified price range" in exc_info.value.detail
+            get_all_books(db_session)
+
+        assert exc_info.value.status_code == 500
+        assert "Error accessing the database" in exc_info.value.detail

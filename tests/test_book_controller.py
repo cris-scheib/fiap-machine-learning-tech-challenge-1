@@ -30,8 +30,8 @@ class TestBookController:
         
         response = client.get("/api/v1/books/", headers=headers)
         
-        assert response.status_code == 404
-        assert "No books found" in response.json()["detail"]
+        assert response.status_code == 200
+        assert response.json() == []
     
     def test_search_books_by_title(self, client, multiple_books, sample_user):
         """Testa a busca de livros por título."""
@@ -84,8 +84,8 @@ class TestBookController:
         
         response = client.get("/api/v1/books/search?title=Nonexistent", headers=headers)
         
-        assert response.status_code == 404
-        assert "No books found" in response.json()["detail"]
+        assert response.status_code == 200
+        assert response.json() == []
     
     def test_get_book_by_id_success(self, client, sample_book, sample_user):
         """Testa a busca de livro por ID."""
@@ -161,8 +161,8 @@ class TestBookController:
         
         response = client.get("/api/v1/books/price-range?min=100.0&max=200.0", headers=headers)
         
-        assert response.status_code == 404
-        assert "No books found in the specified price range" in response.json()["detail"]
+        assert response.status_code == 200
+        assert response.json() == []
     
     def test_unauthorized_access(self, client):
         """Testa acesso sem autenticação."""
