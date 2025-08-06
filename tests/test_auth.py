@@ -1,10 +1,5 @@
-import pytest
-import os
-import sys
 from datetime import datetime, timedelta
-from unittest.mock import patch, Mock
 from app.core.auth import get_password_hash, verify_password, authenticate_user, create_access_token, SECRET_KEY, ALGORITHM
-import pytest
 from jose import jwt
 
 class TestAuth:
@@ -12,8 +7,7 @@ class TestAuth:
     
     def test_verify_password_correct(self):
         """Testa verificação de senha correta."""
-        
-        password = "testpassword"
+
         hashed = "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"  # hash de "secret"
         
         result = verify_password("secret", hashed)
