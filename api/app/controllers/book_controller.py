@@ -3,13 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
 from app.schemas.book_schema import BookSchema
-from app.services.books_service import (
-    get_all_books,
-    get_books_by_title_and_category,
-    get_book_by_id,
-    get_top_rated_books,
-    get_books_by_price_range
-)
+from app.services.books_service import get_all_books, get_books_by_title_and_category, get_book_by_id, get_top_rated_books, get_books_by_price_range
 from app.core.auth import get_current_user
 import logging
 
