@@ -7,7 +7,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import logging
 from sqlalchemy.orm import Session
-from ...core.database import get_db
+from ...core.database import get_db, engine, Base
 from ...entities.book_entity import Book
 from ...services.scrapper.scrapper_utils import (
     clean_text, extract_price, extract_rating, check_availability,
@@ -233,6 +233,10 @@ class BooksToScrapeScraper:
 
 def run_scraping():
     try:
+        logger.info("Inicializando o banco de dados e criando tabelas, se necessário...")
+        Base.metadata.create_all(bind=engine)
+        logger.info("Banco de dados pronto.")
+
         logger.info("Starting Books to Scrape scraper...")
         scraper = BooksToScrapeScraper()
         books_data = scraper.scrape_all_books()
