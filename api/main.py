@@ -51,12 +51,6 @@ app = FastAPI(
     },
 )
 
-#@app.on_event("startup")
-#def on_startup():
-    #logger.info("Initializing database...")
-    #Base.metadata.create_all(bind=engine)
-    #logger.info("Database initialized successfully")
-
 app.openapi_schema = load_openapi()
 
 app.add_middleware(
