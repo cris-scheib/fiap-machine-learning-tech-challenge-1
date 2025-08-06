@@ -233,9 +233,9 @@ class BooksToScrapeScraper:
 
 def run_scraping():
     try:
-        logger.info("Inicializando o banco de dados e criando tabelas, se necessário...")
+        logger.info("Initializing the database and creating tables if necessary...")
         Base.metadata.create_all(bind=engine)
-        logger.info("Banco de dados pronto.")
+        logger.info("Database ready.")
 
         logger.info("Starting Books to Scrape scraper...")
         scraper = BooksToScrapeScraper()
@@ -251,7 +251,7 @@ def run_scraping():
 
         if output_file:
             logger.info("Scraping completed successfully!")
-            logger.info(f"Data saved to: {output_file}")
+            logger.info(f"Data saved to db: {output_file}")
         else:
             logger.error("Failed to save data")
             sys.exit(1)
