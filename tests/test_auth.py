@@ -1,10 +1,5 @@
-import pytest
-import os
-import sys
 from datetime import datetime, timedelta
-from unittest.mock import patch, Mock
 from app.core.auth import get_password_hash, verify_password, authenticate_user, create_access_token, SECRET_KEY, ALGORITHM
-import pytest
 from jose import jwt
 
 class TestAuth:
