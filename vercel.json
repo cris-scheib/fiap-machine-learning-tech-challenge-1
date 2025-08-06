@@ -10,6 +10,5 @@
       "src": "/(.*)",
       "dest": "api/main.py"
     }
-  ],
-  "buildCommand": "pip install -r requirements.txt && pytest tests/ --cov=api/app --cov-report=term-missing"
+  ]
 }
