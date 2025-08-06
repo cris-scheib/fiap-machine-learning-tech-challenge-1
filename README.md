@@ -12,10 +12,11 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 - [Descrição](#descrição)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Arquitetura](#arquitetura)
+- [Banco de Dados](#banco-de-dados)
 - [Como Utilizar](#como-utilizar)
 - [Endpoints](#endpoints)
 - [Testes Unitários e Integração](#testes-unitários-e-integração)
-- [Licença, Autores e Agradecimentos](#licença-autores)
+- [Licença e Autores](#licença-e-autores)
 
 -----------------------------------
 
@@ -25,10 +26,10 @@ O objetivo deste projeto é expor uma **API RESTful** para facilitar o acesso ao
 
 A API fornece endpoints para:
 
-- Cadastro e autenticação de usuários (OAuth2 Password Grant).
-- Consulta de informações de livros: listagem, busca por ID, busca por título/categoria.
+- Cadastro e autenticação de usuários via JWT (Bearer Token).
+- Consulta de informações de livros: listagem, busca por ID, busca por título/categoria, mais avaliados e por média de preços.
 - Estatísticas gerais e por categoria.
-- Ação manual de scraping para atualização dos dados.
+- Trigger de scraping via endpoint para atualização dos dados.
 - Health check da API.
 
 Os dados disponíveis envolvem informações sobre:
@@ -100,13 +101,19 @@ Essa separação melhora a modularidade, e permite evoluir cada camada independe
 
 -----------------------------------
 
+## Banco de Dados
+A aplicação utiliza um banco de dados SQLite para armazenar os dados extraídos (também são armazenados em um csv). 
+O banco é inicializado automaticamente ao iniciar a aplicação ou realizar o scrapping, criando as tabelas necessárias.
+
+-----------------------------------
+
 ## Como Utilizar
 
 Você pode usar a API de duas formas: **localmente** no seu ambiente de desenvolvimento ou 
 utilizando a **versão já deployada**.
 
-Para sua conveniência, o repositório já inclui um banco de dados (`.sqlite`) com cerca de mil livros e 
-um usuário de testes, além de um arquivo (`.csv`). Permitindo que você explore a API imediatamente.
+Para sua conveniência, o repositório já inclui um banco de dados SQlite (`data.db`) com cerca de mil livros e 
+um usuário de testes, além de um arquivo (`books_data_20250729_232318.csv`). Permitindo que você explore a API imediatamente.
 
 
 **Autenticação (válido para ambos os modos)**
@@ -119,12 +126,6 @@ Usuário de teste:
     password: test12345
 
 Não se esqueça de gerar e usar o token JWT antes de acessar os endpoints que requerem autenticação.
-
-### ☁️ Via Deploy (produção)
-
-Acesse a versão pública em: https://fiap-machine-learning-tech-challeng.vercel.app/api/docs 
-
-Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no navegador.
 
 ### 🏠 Execução Local
 
@@ -171,16 +172,21 @@ A API estará disponível em `http://127.0.0.1:8000`.
 A documentação interativa é acessível em `http://127.0.0.1:8000/docs` (Swagger UI) 
 e `http://127.0.0.1:8000/redoc` (ReDoc).
 
+> **Atenção:** No Swagger selecione o servidor **Local**: http://127.0.0.1:8000 - Execução local.
+
 ### Opcional: Executar o Web Scraping
 
 Utilize este processo apenas se desejar substituir os dados existentes por uma nova coleta, ou se você limpou o banco.
 
-> **Atenção:** O processo é demorado (entre 30 minutos a 1 hora) e requer um usuário existente no banco de dados 
-> para associar os livros coletados.
+> **Atenção:** O processo é demorado (entre 30 minutos a 1 hora) para extrair todos os livros.
+> Caso queira executar de forma mais rápida, apenas para ver o funcionamento, limite a quantidade de dados extraídos:
+> - Entre na classe scrapper_service.py
+> - Na linha 61, no retorno category_links[1:] 
+> - Modifique o intervalo ex: category_links[1:2]
 
 ### Fluxo de trabalho para o scraping:
 
-### 1. Certifique-se de que a API NÃO esteja rodando** (pressione `Ctrl+C` no terminal onde a API está ativa).
+### 1. Certifique-se de que a API NÃO esteja em execução (pressione `Ctrl+C` no terminal onde a API está ativa).
 ### 2. Execute o script de scraping. No diretório raiz do projeto, execute:
 ```bash
    cd api
@@ -188,6 +194,17 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
    python -m app.services.scrapper.scrapper_service
 ```
 ### 3. Pronto! Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
+
+### ☁️ Via Deploy (produção)
+
+A nossa API está hospedada na Vercel que é uma plataforma de nuvem projetada 
+para facilitar o desenvolvimento e a implantação de aplicações web
+
+Acesse a versão em: https://fiap-machine-learning-tech-challeng.vercel.app/api/docs 
+
+Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no navegador.
+
+> **Atenção:** No Swagger selecione o servidor **Produção**: https://fiap-machine-learning-tech-challeng.vercel.app - Vercel server.
 
 -----------------------------------
 
@@ -243,6 +260,7 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
   ```json
   {
     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "token_type": "bearer"
   }
   ```
@@ -410,7 +428,7 @@ Não há corpo na resposta.
 
 ## Testes Unitários e Integração
 
-O projeto inclui uma suíte abrangente de testes que combina **testes unitários** e **testes de integração** para garantir a qualidade e confiabilidade do código.
+O projeto inclui uma suíte abrangente de testes utilizando pytest que combina **testes unitários** e **testes de integração** para garantir a qualidade e confiabilidade do código.
 
 ### 📊 Cobertura Atual
 - **40 testes** implementados
@@ -460,7 +478,7 @@ Após executar os testes com `--cov-report=html:htmlcov`, abra o arquivo `htmlco
 
 -----------------------------------
 
-## Licença, Autores
+## Licença e Autores
 
 ### 🧑‍💻 Desenvolvido por
 
