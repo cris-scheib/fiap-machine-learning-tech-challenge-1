@@ -1,7 +1,8 @@
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy import func, Float
 from app.entities.book_entity import Book
-from fastapi import HTTPException
+from app.exceptions.custom_exceptions import DatabaseException
 from typing import List, Dict
 
 
@@ -17,8 +18,9 @@ def get_overview_stats(db: Session) -> Dict:
             "rating_distribution": {r[0]: r[1] for r in rating_distribution}
         }
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error calculating general statistics: {str(e)}")
+
+    except SQLAlchemyError as e:
+        raise DatabaseException(original_error=e)
 
 
 def get_category_stats(db: Session) -> List[Dict]:
@@ -38,5 +40,7 @@ def get_category_stats(db: Session) -> List[Dict]:
             for row in results
         ]
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error calculating statistics by category: {str(e)}")
+
+
+    except SQLAlchemyError as e:
+        raise DatabaseException(original_error=e)

@@ -3,7 +3,7 @@ import sys
 import pytest
 from fastapi import HTTPException
 from app.entities.book_entity import Book
-from app.exceptions.BookNotFoundException import BookNotFoundException
+from app.exceptions.custom_exceptions import BookNotFoundException
 from app.services.books_service import (
     get_all_books,
     get_books_by_title_and_category,
