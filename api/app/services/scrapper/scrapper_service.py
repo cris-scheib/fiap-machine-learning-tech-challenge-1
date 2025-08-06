@@ -58,7 +58,7 @@ class BooksToScrapeScraper:
                     category_links.append(full_url)
 
         logger.info(f"Found {len(category_links)} categories")
-        return category_links[1:2]
+        return category_links[1:]
 
     @staticmethod
     def get_all_book_urls_from_category(category_url: str) -> List[str]:
