@@ -13,6 +13,7 @@ Projeto de extração e API pública para consulta de livros, integrando web scr
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Arquitetura](#arquitetura)
 - [Como Utilizar](#como-utilizar)
+- [Testes](#testes)
 - [Endpoints](#endpoints)
 - [Licença, Autores e Agradecimentos](#licença-autores)
 
@@ -173,6 +174,73 @@ Utilize este processo apenas se desejar substituir os dados existentes por uma n
     ```
 4.  **Pronto!** Após a conclusão, inicie a API normalmente (passo 4 da execução local) para usar os novos dados.
 
+-----------------------------------
+
+## Testes
+
+O projeto inclui uma suíte abrangente de testes que combina **testes unitários** e **testes de integração** para garantir a qualidade e confiabilidade do código.
+
+### 📊 Cobertura Atual
+- **40 testes** implementados
+- **54% de cobertura** de código
+
+### 🧪 Tipos de Teste
+
+**Testes Unitários:**
+- Funções de autenticação e JWT
+- Lógica de negócio isolada
+- Utilitários e helpers
+
+**Testes de Integração:**
+- Endpoints da API completos
+- Interação com banco de dados
+- Fluxos de autenticação
+- Serialização de dados
+
+### 🚀 Executando os Testes
+
+**Pré-requisitos:**
+- Ambiente virtual ativado
+- Dependências instaladas (`pip install -r requirements.txt`)
+
+**Comandos disponíveis:**
+
+```bash
+# Executar todos os testes
+python -m pytest tests/
+
+# Executar com relatório de cobertura
+python -m pytest tests/ --cov=api/app --cov-report=term-missing --cov-report=html:htmlcov
+
+# Executar testes específicos
+python -m pytest tests/test_auth.py
+python -m pytest tests/test_book_controller.py
+python -m pytest tests/test_books_service.py
+
+# Executar com saída detalhada
+python -m pytest tests/ -v
+```
+
+**Relatório HTML de Cobertura:**
+Após executar os testes com `--cov-report=html:htmlcov`, abra o arquivo `htmlcov/index.html` no navegador para visualizar o relatório detalhado de cobertura.
+
+### 📁 Estrutura dos Testes
+
+```
+tests/
+├── conftest.py              # Configurações e fixtures compartilhadas
+├── test_auth.py             # Testes de autenticação (unitários)
+├── test_book_controller.py  # Testes dos endpoints da API (integração)
+└── test_books_service.py    # Testes dos serviços de livros (misto)
+```
+
+### 🔧 Fixtures Disponíveis
+- `db_session`: Sessão de banco de dados para testes
+- `client`: Cliente de teste da API FastAPI
+- `sample_user`: Usuário de exemplo para testes
+- `multiple_books`: Conjunto de livros para testes
+
+-----------------------------------
 
 ## Endpoints
 
