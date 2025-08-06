@@ -10,9 +10,8 @@ router = APIRouter(
 
 @router.post(
     "/trigger",
+    response_model=str,
     status_code=status.HTTP_202_ACCEPTED,
-    summary="Dispara o processo de web scraping",
-    description="Agenda o scraping de livros em background e retorna imediatamente."
 )
 async def trigger_scraping(
     background_tasks: BackgroundTasks
