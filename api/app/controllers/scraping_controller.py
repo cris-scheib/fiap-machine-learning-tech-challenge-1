@@ -10,7 +10,6 @@ router = APIRouter(
 
 @router.post(
     "/trigger",
-    response_model=str,
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def trigger_scraping(
