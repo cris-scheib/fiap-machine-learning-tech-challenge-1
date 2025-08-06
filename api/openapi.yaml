@@ -1,35 +1,41 @@
 openapi: 3.0.3
 info:
-  title: "FIAP ML Tech Challenge 1 – Books API"
+  title: "API de Livros - FIAP Machine Learning Tech Challenge 1"
   description: |
     ## 📚 API RESTful para gerenciamento de livros obtidos via web scraping de https://books.toscrape.com
 
-    Projeto de gerenciamento de livros obtidos via web scraping de
-    [Books to Scrape](https://books.toscrape.com).
-
-    **Principais recursos:**
-    - **Cadastro e autenticação de usuários** (OAuth2 Password Grant)
+    
+    ### 📂 Principais recursos:
+    - **Cadastro e login e informações de usuários**
+    - **Autenticação via JWT (Bearer Token)**
     - **Consulta de livros**: listagem, busca por ID ou por título/categoria, mais avaliados e por média de preços
     - **Estatísticas** gerais e por categoria
     - **Trigger de scraping manual** para atualizar os dados
     - **Health-check** da API
 
-    ## 🚀 Instruções de uso
+    ### 🚀 Instruções de uso
 
-    1. **Cadastro de usuário**  
-       Cadastre um usuário ou utilize o de teste já existente:  
-       - **Username**: `test_user`  
+    ###  1. Cadastro de usuário 
+        
+      **Cadastre um usuário ou utilize o de teste já existente:**  
+       
+       - **Username**: `test_user` 
+    
        - **Password**: `test12345`
 
-    2. **Obter token**  
+    ###  2. Obter token
+       
        `POST /auth/login`  
-       - Body (form-urlencoded):  
-         - `username`: seu_usuario  
-         - `password`: sua_senha  
+       - Body:
+    
+         `username`: seu_usuario  
+    
+         `password`: sua_senha
+    
        - Retorna JSON com `access_token`, `refresh_token` e `token_type`
 
-    3. **Endpoints protegidos**  
-       Inclua no header:  
+    ###  3. Endpoints protegidos  
+       Inclua o token no header:  
        ```
        Authorization: Bearer <access_token>
        ```
