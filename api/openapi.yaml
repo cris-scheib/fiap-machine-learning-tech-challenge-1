@@ -257,7 +257,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserCreate"
-        '400':
+        '409':
           description: Usuário já existe
 
   /users/me:
