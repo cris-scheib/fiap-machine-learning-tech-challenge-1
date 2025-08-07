@@ -10,10 +10,10 @@ from app.controllers import (
 )
 
 router = APIRouter()
-router.include_router(user_controller.router, prefix="/users", tags=["Users"])
-router.include_router(auth_controller.router, prefix="/auth", tags=["Auth"])
+router.include_router(user_controller.router, prefix="/api/v1/users", tags=["Users"])
+router.include_router(auth_controller.router, prefix="/api/v1/auth", tags=["Auth"])
 router.include_router(book_controller.router, prefix="/api/v1/books", tags=["Books"])
 router.include_router(category_controller.router, prefix="/api/v1/categories", tags=["Categories"])
 router.include_router(stats_controller.router, prefix="/api/v1/stats", tags=["Stats"])
 router.include_router(scraping_controller.router, prefix="/api/v1/scraping", tags=["Scraping"])
-router.include_router(health_controller.router, tags=["Health"])
+router.include_router(health_controller.router, prefix="/api/v1/health", tags=["Health"])

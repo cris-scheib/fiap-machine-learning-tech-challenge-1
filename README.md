@@ -52,14 +52,17 @@ Os dados disponíveis envolvem informações sobre:
 - **Uvicorn**
 - **BeautifulSoup4**
 - **SQLite**
+- **Pytest**
 
 -----------------------------------
 
 ## Arquitetura
 
-O projeto segue uma arquitetura em camadas, inspirada no Clean Architecture,
+O projeto segue uma arquitetura em camadas, baseado no Clean Architecture,
 separando responsabilidades em diferentes módulos e 
-facilitando manutenção e testes.
+facilitando manutenção, escalabilidade e testes.
+
+![Logo do Projeto](img/arch_machine_learning_engineering_tech_challenge_1.png)
 
 ### 📂 Estrutura do Repositório
 
@@ -72,6 +75,7 @@ fiap-machine-learning-tech-challenge-1/
 │       ├── controllers/         # Implementação dos endpoints (routes)
 │       ├── core/                # Configurações de autenticação e sessão de BD
 │       ├── entities/            # Contém as entidades do banco (Modelos SQLAlchemy)
+│       ├── exceptions/          # Contém as exceções customizadas para que a Api retorna
 │       ├── schemas/             # Schemas Pydantic (request/response)
 │       └── services/            # Lógica de negócio e componente de scraping
 ├──tests/
@@ -212,219 +216,66 @@ Lá você terá o Swagger UI e poderá testar todos os endpoints diretamente no 
 
 ## Endpoints
 
-### `POST /users/`
-- **Descrição:** Registra um novo usuário no sistema.
-- **Corpo da Requisição (application/json)**
-  ```json
-  {
-    "username": "bob",
-    "password": "strongpassword"
-  }
-  ```
-- **Exemplo de Resposta (200 Created):**
-  ```json
-  {
-    "username": "bob",
-    "password": "strongpassword"
-  }
-  ```
+### `Users`
+- **POST /api/v1/users/:** Registra um novo usuário no sistema.
   
-### `GET /users/me`
-- **Descrição:** Obtém os detalhes do usuário atualmente autenticado. **Requer autenticação.**
-- **Exemplo de Resposta (200 Ok):**
-  ```json
-  {
-    "id": "1",
-    "username": "test_user"
-  }
-  ```
+
+- **GET api/v1/users/me:** Obtém os detalhes do usuário atualmente autenticado. **Requer autenticação.**
 
 -----------------------------------
 
-### `POST /auth/login`
-- **Descrição:** Realiza login e gera um token de acesso JWT para um usuário, com base em suas credenciais.
-- **Corpo da Requisição:**
-- `username`(string, obrigatório)
-- `password`(string, obrigatório)
-- **Exemplo de Resposta (200 Ok):**
-  ```json
-  {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTQzNDM1OTV9.ajROUaSSezlfxecLmcGdks7WsLSLj2bGOBFf3pM5xtk",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3NTQ0MjYzOTV9.XVcXe6bMY9dGuvpPzEhf-35dQIL53AYf-li-A8Eu8tw",
-    "token_type": "bearer"
-  }
-  ```
-### `POST /auth/refresh`
-- **Descrição:** Usa refresh token para gerar novo access token.
-- **Corpo da Requisição:**
-- `refresh_token`: (string, obrigatório)
-- **Exemplo de Resposta (200 Ok):**
-  ```json
-  {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "bearer"
-  }
-  ```
+### `Auth`
+- **POST api/v1/auth/login:** Realiza login e gera um token de acesso JWT para um usuário, com base em suas credenciais.
 
----
 
-### `GET /api/v1/health`
-- **Descrição:** Verifica se a API está no ar.
-- **Resposta (200):**
-  ```json
-  { "status": "ok" }
-  ```
+- **POST /api/v1/auth/refresh:** Usa refresh token para gerar novo access token.
 
 -----------------------------------
 
-### `GET /api/v1/books`
-- **Descrição:** Lista todos os livros carregados. **Requer autenticação.**
-- **Resposta (200):**
-  ```json
-  [
-    { 
-      "id": 824,
-      "title": "A Light in the Attic",
-      "price": 51.77,
-      "availability": "In Stock",
-      "rating": "Three",
-      "category": "Poetry",
-      "image_url": "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg" 
-    }
-  ]
-  ```
+### `Health`
+- **GET /api/v1/health:** Verifica se a API está no ar.
 
-### `GET /api/v1/books/{id}`
-- **Descrição:** Retorna os detalhes de um livro específico pelo seu id. **Requer autenticação.**
-- **Path Param:**
-  - `id` (int, obrigatório)
-- **Resposta (200):** Detalhes de um livro
-  ```json
-  {
-    "id": 824,
-    "title": "A Light in the Attic",
-    "price": 51.77,
-    "availability": "In Stock",
-    "rating": "Three",
-    "category": "Poetry",
-    "image_url": "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg"
-  }
-  ```
-- **Resposta (404):**
-  ```json
-  { "detail": "Book not found" }
-  ```
+-----------------------------------
 
-### `GET /api/v1/books/search`
-- **Descrição:** Busca livros por título e/ou categoria. Se nenhum parâmetro for fornecido, 
+### `Books`
+- **GET /api/v1/books:** Lista todos os livros carregados. **Requer autenticação.**
+
+
+- **GET /api/v1/books/{id}:** Retorna os detalhes de um livro específico pelo seu id. **Requer autenticação.**
+
+
+- **GET /api/v1/books/search:** Busca livros por título e/ou categoria. Se nenhum parâmetro for fornecido, 
 retorna todos os livros. **Requer autenticação.**
-- **Query Params:**
-  - `title` (string, opcional)
-  - `category` (string, opcional)
-- **Resposta (200):** Lista de livros que atendem aos filtros.
-  ```json
-  [
-    {
-      "id": 824,
-      "title": "A Light in the Attic",
-      "price": 51.77,
-      "availability": "In Stock",
-      "rating": "Three",
-      "category": "Poetry",
-      "image_url": "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg"
-    }
-  ]
-  ```
-### `/api/v1/books/top-rated`
-- **Descrição:** Retorna uma lista dos livros com as melhores avaliações em ordem. **Requer autenticação.**
-- **Query Params:**
-  - `limit` (int, opcional, valor padrão = 10)
-- **Resposta (200):** Lista de livros com as melhores avaliações.
-  ```json
-  [
-    {
-      "id": 11,
-      "title": "1,000 Places to See Before You Die",
-      "price": 26.08,
-      "availability": "In Stock",
-      "rating": "Five",
-      "category": "Travel",
-      "image_url": "https://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg"
-    }
-  ]
-  ```  
 
-### `/api/v1/books/price-range`
-- **Descrição:** Filtra livros dentro de uma faixa de preço específica (inclusivo). **Requer autenticação.**
-- **Query Params:**
-  - `min` (float, obrigatório)
-  - `max` (float, obrigatório)
-- **Resposta (200):** Lista de livros com os valores de uma faixa específica.
-  ```json
-  [
-    {
-      "id": 11,
-      "title": "1,000 Places to See Before You Die",
-      "price": 26.08,
-      "availability": "In Stock",
-      "rating": "Five",
-      "category": "Travel",
-      "image_url": "https://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg"
-    }
-  ]
-  ``` 
+
+- **GET /api/v1/books/top-rated:** Retorna uma lista dos livros com as melhores avaliações em ordem. **Requer autenticação.**
+
+
+- **GET /api/v1/books/price-range:** Filtra livros dentro de uma faixa de preço específica (inclusivo). **Requer autenticação.**
   
----
+-----------------------------------
 
-### `GET /api/v1/categories`
-- **Descrição:** Retorna todas as categorias existentes. **Requer autenticação.**
-- **Resposta (200):** Lista de todas as categorias
-  ```json
-  ["Travel", "Mystery", "Historical Fiction"]
-  ```
+### `Categories`
+- **GET /api/v1/categories:** Retorna todas as categorias existentes. **Requer autenticação.**
 
 -----------------------------------
 
-### `GET /api/v1/stats/overview`
-- **Descrição:** Retorna estatísticas gerais, como número total de livros, preço médio 
+### `Stats`
+- **GET /api/v1/stats/overview:** Retorna estatísticas gerais, como número total de livros, preço médio 
 e distribuição de classificação. **Requer autenticação.**
-- **Resposta (200):** Estatísticas
-  ```json
-  {
-    "total_books": 1011,
-    "average_price": 35.12,
-    "rating_distribution": {
-      "Five": 197,
-      "Four": 181,
-      "One": 228,
-      "Three": 206,
-      "Two": 199
-      }
-  }
-  ```
 
-### `GET /api/v1/stats/categories`
-- **Descrição:** Retorna estatísticas detalhadas para cada categoria, 
+  
+- **GET /api/v1/stats/categories:** Retorna estatísticas detalhadas para cada categoria, 
 incluindo contagem de livros e preço médio. **Requer autenticação.**
-- **Resposta (200):** Lista de Estatísticas detalhadas por categoria
-  ```json
-  [
-    {
-      "category": "Poetry",
-      "total_books": 19,
-      "average_price": 47.66
-    }
-  ]
-  ```
   
 -----------------------------------
 
-### `POST /api/v1/scraping/trigger`
-- **Descrição:** Inicia o processo de web scraping em segundo plano para atualizar a 
+### `Scraping`
+- **POST /api/v1/scraping/trigger:** Inicia o processo de web scraping em segundo plano para atualizar a 
 base de dados de livros. **Requer autenticação.**
-- **Resposta (202):** A API retornará um status 202 com uma mensagem para indicar que a tarefa foi iniciada com sucesso. 
-Não há corpo na resposta.
+
+
+**Para mais detalhes de request/response e cenários de erro dos endpoints**, consulte o Swagger UI 
   
 -----------------------------------
 
