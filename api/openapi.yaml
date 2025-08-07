@@ -31,7 +31,7 @@ info:
     
        - **Password**: `test12345`
 
-    ###  2. Obter token
+    ###  2. Realizar Autenticação para obter o Token de Acesso
        
       `POST /auth/login`  
       
@@ -43,7 +43,7 @@ info:
     
       Retorna um JSON com `access_token`, `refresh_token` e `token_type`
 
-    ###  3. Realizar Autenticação para acessar Endpoints protegidos  
+    ###  3. Usar o Token para acessar Endpoints protegidos  
        Inclua o token no header:  
        ```
        Authorization: Bearer <access_token>
