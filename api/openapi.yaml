@@ -252,13 +252,17 @@ paths:
               $ref: "#/components/schemas/UserCreate"
       responses:
         '200':
-          description: Usuário criado com sucesso
+          description: User created successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserCreate"
         '409':
-          description: Usuário já existe
+          description: User already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /users/me:
     get:
@@ -267,13 +271,13 @@ paths:
       description: Obtém detalhes do usuário autenticado
       responses:
         '200':
-          description: Detalhes do usuário
+          description: User details
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
         '401':
-          description: Usuário não autenticado
+          description: Not authenticated
           content:
             application/json:
               schema:
@@ -300,13 +304,13 @@ paths:
                 - password
       responses:
         '200':
-          description: Token gerado com sucesso
+          description: Token generated successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Token"
         '401':
-          description: Nome de usuário ou senha incorretos
+          description: User or password incorrect
           content:
             application/json:
               schema:
@@ -315,8 +319,8 @@ paths:
   /auth/refresh:
     post:
       tags: ["Auth"]
-      summary: "Renova access token"
-      description: "Usa refresh token para gerar novo access token"
+      summary: Renova access token
+      description: Usa refresh token para gerar novo access token
       requestBody:
         required: true
         content:
@@ -330,13 +334,13 @@ paths:
               required: ["refresh_token"]
       responses:
         200:
-          description: Novo access token gerado
+          description: New access token generated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Token"
         401:
-          description: Refresh token inválido ou expirado
+          description: Could not validate refresh token
 
   /api/v1/books:
     get:
@@ -345,7 +349,7 @@ paths:
       description: Lista todos os livros disponíveis na base de dados.
       responses:
         '200':
-          description: Lista de livros
+          description: List of all books
           content:
             application/json:
               schema:
@@ -353,13 +357,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/Book"
         '401':
-          description: Usuário não autenticado
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Ocorreu um erro interno no servidor"
+          description: "Internal Server Error Occurred"
           content:
             application/json:
               schema:
@@ -379,25 +383,25 @@ paths:
       description: Retorna detalhes completos de um livro específico pelo ID.
       responses:
         '200':
-          description: Detalhes do livro
+          description: Book detail
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Book"
         '401':
-          description: "Usuário não autenticado"
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '404':
-          description: "Livro não encontrado"
+          description: Book with specific ID not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Ocorreu um erro interno no servidor"
+          description: Internal Server Error Occurred
           content:
             application/json:
               schema:
@@ -424,7 +428,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Resultados da busca
+          description: Book search results
           content:
             application/json:
               schema:
@@ -432,13 +436,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/Book"
         '401':
-          description: "Usuário não autenticado"
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Ocorreu um erro interno no servidor"
+          description: Internal Server Error Occurred
           content:
             application/json:
               schema:
@@ -461,7 +465,7 @@ paths:
             example: 10
       responses:
         '200':
-          description: Resultados dos livros com melhores avaliações
+          description: Top-rated book results
           content:
             application/json:
               schema:
@@ -469,13 +473,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/Book"
         '401':
-          description: "Usuário não autenticado"
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Erro no servidor"
+          description: Internal Server Error Occurred
           content:
             application/json:
               schema:
@@ -507,7 +511,7 @@ paths:
             example: 50.0
       responses:
         '200':
-          description: "Uma lista de livros dentro da faixa de preço fornecida"
+          description: A list of books within the given price range
           content:
             application/json:
               schema:
@@ -515,19 +519,19 @@ paths:
                 items:
                   $ref: "#/components/schemas/Book"
         '400':
-          description: "Valor mínimo não deve ser maior que o valor máximo."
+          description: Minimum value must not be greater than maximum value
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '401':
-          description: "Usuário não autenticado"
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Ocorreu um erro interno no servidor"
+          description: Internal Server Error Occurred
           content:
             application/json:
               schema:
@@ -541,7 +545,7 @@ paths:
       description: "Retorna uma lista contendo todas as categorias dos livros disponíveis"
       responses:
         '200':
-          description: "Lista de categorias"
+          description: Category List
           content:
             application/json:
               schema:
@@ -549,13 +553,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/Category"
         '401':
-          description: "Usuário não autenticado"
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Ocorreu um erro interno no servidor"
+          description: Internal Server Error Occurred
           content:
             application/json:
               schema:
@@ -569,19 +573,19 @@ paths:
       e distribuição de classificação."
       responses:
         '200':
-          description: "Estatísticas de visão geral retornadas com sucesso"
+          description: Overview statistics returned successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Stats"
         '401':
-          description: "Usuário não autenticado"
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Ocorreu um erro interno no servidor"
+          description: Internal Server Error Occurred
           content:
             application/json:
               schema:
@@ -595,7 +599,7 @@ paths:
       e preço médio por categoria."
       responses:
         '200':
-          description: "Estatísticas de categoria retornadas com sucesso"
+          description: Category statistics returned successfully
           content:
             application/json:
               schema:
@@ -603,13 +607,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/CategoryStats"
         '401':
-          description: "Usuário não autenticado"
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Ocorreu um erro interno no servidor"
+          description: Internal Server Error Occurred
           content:
             application/json:
               schema:
@@ -621,15 +625,15 @@ paths:
       summary: "Aciona manualmente o processo de scraping"
       responses:
         '202':
-          description: "Scraping iniciado"
+          description: Scraping started
         '401':
-          description: "Usuário não autenticado"
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Erro ao iniciar scraping"
+          description: Error starting scraping
           content:
             application/json:
               schema:
