@@ -5,16 +5,16 @@ class CustomException(Exception):
 
 class BookNotFoundException(CustomException):
     def __init__(self, book_id: int = None):
-        message = f"Livro com ID '{book_id}' não encontrado."
+        message = f"Book with ID  '{book_id}' not found."
         super().__init__(message)
 
 class BookNotFoundInRangePriceException(CustomException):
     def __init__(self):
-        message = "Valor mínimo não deve ser maior que o valor máximo."
+        message = "Minimum value must not be greater than maximum value."
         super().__init__(message)
 
 class DatabaseException(CustomException):
     def __init__(self, original_error: Exception = None):
         self.original_error = original_error
-        message = "Ocorreu um erro inesperado ao acessar o banco de dados."
+        message = "An unexpected error occurred while accessing the database."
         super().__init__(message)

@@ -71,7 +71,7 @@ logger.info("Routes registered successfully")
 async def database_exception_handler(request: Request, exc: SQLAlchemyError):
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Ocorreu um erro interno no servidor"}
+        content={"detail": "Internal Server Error Occurred"}
     )
 
 @app.exception_handler(BookNotFoundException)
