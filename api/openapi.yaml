@@ -19,13 +19,13 @@ info:
         
       **Em servers escolha:**  
        
-       - **Produção**: https://fiap-machine-learning-tech-challeng.vercel.app - Vercel server
+       - **Produção**: `https://fiap-machine-learning-tech-challeng.vercel.app - Vercel server`
     
-       - **Local**: http://127.0.0.1:8000 - Execução local
+       - **Local**: `http://127.0.0.1:8000 - Execução local`
 
     ###  1. Cadastro de usuário 
         
-      **Cadastre um usuário ou utilize o de teste já existente:**  
+      **Cadastre um usuário no `POST /users`  ou utilize o de teste já existente:**  
        
        - **Username**: `test_user` 
     
@@ -33,16 +33,17 @@ info:
 
     ###  2. Obter token
        
-       `POST /auth/login`  
-       - Body:
+      `POST /auth/login`  
+      
+       **Parâmetros da Requisição (Body):**:
     
-         `username`: test_user  
+       - **Username**: `test_user` 
     
-         `password`: test12345
+       - **Password**: `test12345`
     
-       - Retorna JSON com `access_token`, `refresh_token` e `token_type`
+      Retorna um JSON com `access_token`, `refresh_token` e `token_type`
 
-    ###  3. Endpoints protegidos  
+    ###  3. Realizar Autenticação para acessar Endpoints protegidos  
        Inclua o token no header:  
        ```
        Authorization: Bearer <access_token>
