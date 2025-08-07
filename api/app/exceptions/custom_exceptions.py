@@ -10,7 +10,7 @@ class BookNotFoundException(CustomException):
 
 class BookNotFoundInRangePriceException(CustomException):
     def __init__(self):
-        message = "Valor mínimo não deve ser maior que o valor máximo "
+        message = "Valor mínimo não deve ser maior que o valor máximo."
         super().__init__(message)
 
 class DatabaseException(CustomException):

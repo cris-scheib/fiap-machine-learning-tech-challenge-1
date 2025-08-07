@@ -357,6 +357,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: "Ocorreu um erro interno no servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/v1/books/{id}:
     parameters:
@@ -377,14 +383,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Book"
+        '401':
+          description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         '404':
           description: "Livro não encontrado"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        '401':
-          description: "Usuário não autenticado"
+        '500':
+          description: "Ocorreu um erro interno no servidor"
           content:
             application/json:
               schema:
@@ -418,14 +430,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Book"
-        '404':
-          description: "Nenhum livro encontrado na base de dados"
+        '401':
+          description: "Usuário não autenticado"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        '401':
-          description: "Usuário não autenticado"
+        '500':
+          description: "Ocorreu um erro interno no servidor"
           content:
             application/json:
               schema:
@@ -502,13 +514,19 @@ paths:
                 items:
                   $ref: "#/components/schemas/Book"
         '400':
-          description: "Invalid price range"
+          description: "Valor mínimo não deve ser maior que o valor máximo."
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '401':
           description: "Usuário não autenticado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: "Ocorreu um erro interno no servidor"
           content:
             application/json:
               schema:
@@ -529,14 +547,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Category"
-        '404':
-          description: "Categoria não encontrada"
+        '401':
+          description: "Usuário não autenticado"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        '401':
-          description: "Usuário não autenticado"
+        '500':
+          description: "Ocorreu um erro interno no servidor"
           content:
             application/json:
               schema:
@@ -562,7 +580,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Erro no servidor"
+          description: "Ocorreu um erro interno no servidor"
           content:
             application/json:
               schema:
@@ -590,7 +608,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: "Erro no servidor"
+          description: "Ocorreu um erro interno no servidor"
           content:
             application/json:
               schema:
@@ -599,10 +617,10 @@ paths:
   /api/v1/scraping/trigger:
     post:
       tags: ["Scraping"]
-      summary: Aciona manualmente o processo de scraping
+      summary: "Aciona manualmente o processo de scraping"
       responses:
         '202':
-          description: Scraping iniciado"
+          description: "Scraping iniciado"
         '401':
           description: "Usuário não autenticado"
           content:
@@ -610,7 +628,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '500':
-          description: Erro ao iniciar scraping
+          description: "Erro ao iniciar scraping"
           content:
             application/json:
               schema:
