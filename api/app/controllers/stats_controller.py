@@ -14,8 +14,7 @@ router = APIRouter(
 
 
 @router.get("/overview",
-            summary="Get general collection statistics",
-            description="Returns general statistics such as total number of books, average price, and rating distribution.",
+            response_model=Dict[str, Any],
             status_code=status.HTTP_200_OK
             )
 async def stats_overview(db: Session = Depends(get_db)) -> Dict[str, Any]:
@@ -24,9 +23,8 @@ async def stats_overview(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 
 @router.get("/categories",
-            summary="Get statistics by category",
-            description="Returns statistics grouped by category, including number of books and average price per category.",
-            status_code=status.HTTP_200_OK,
+            response_model=List[Dict[str, Any]],
+            status_code=status.HTTP_200_OK
             )
 async def stats_by_category(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
     logger.info("Endpoint /stats/categories accessed - Getting statistics per book category")
